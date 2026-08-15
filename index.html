@@ -7,6 +7,8 @@
 <meta name="theme-color" content="#8d1233">
 <link rel="manifest" href="manifest.webmanifest">
 <script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
 <style>
   :root{
@@ -187,6 +189,7 @@
   .center{text-align:center}
   .muted{color:#777}
   .print-title{display:none}
+  .pdf-generating{opacity:.72;pointer-events:none}
   @media(max-width:1100px){
     .app{grid-template-columns:1fr}
     .panel{height:auto;max-height:none}
@@ -194,12 +197,74 @@
   }
   @media print{
     @page{size:A4 portrait;margin:0}
-    body{background:#fff}
-    .topbar,.editor-panel{display:none!important}
-    .app{display:block;padding:0}
-    .panel.preview-panel{box-shadow:none;padding:0;margin:0}
-    .preview-wrap{padding:0;overflow:visible}
-    .bill-page{box-shadow:none;border:1px solid var(--line);width:210mm;min-height:297mm;margin:0}
+    html,body{
+      width:210mm!important;
+      min-width:210mm!important;
+      margin:0!important;
+      padding:0!important;
+      background:#fff!important;
+      overflow:visible!important;
+    }
+
+    /* Hide every app/control element that must never enter the PDF. */
+    .topbar,
+    .editor-panel,
+    .auth-overlay,
+    .setup-banner,
+    #setupBanner,
+    #printBanner,
+    .bills-modal{
+      display:none!important;
+    }
+
+    .app{
+      display:block!important;
+      width:210mm!important;
+      margin:0!important;
+      padding:0!important;
+    }
+
+    .panel.preview-panel{
+      display:block!important;
+      width:210mm!important;
+      margin:0!important;
+      padding:0!important;
+      border:0!important;
+      box-shadow:none!important;
+      overflow:visible!important;
+    }
+
+    .preview-wrap{
+      display:block!important;
+      width:210mm!important;
+      margin:0!important;
+      padding:0!important;
+      overflow:visible!important;
+    }
+
+    /*
+      Android/Chrome print services can reserve a few millimetres even when
+      @page margin is 0. Scaling the A4 bill to 93% prevents the final lines
+      from overflowing onto page 2 while preserving the same proportions.
+    */
+    .bill-page{
+      box-shadow:none!important;
+      border:1px solid var(--line)!important;
+      width:210mm!important;
+      min-height:297mm!important;
+      margin:0 0 0 3.5mm!important;
+      padding:0!important;
+      zoom:.93;
+      break-inside:avoid!important;
+      page-break-inside:avoid!important;
+      page-break-after:avoid!important;
+      overflow:hidden!important;
+    }
+
+    .footer-note{
+      break-inside:avoid!important;
+      page-break-inside:avoid!important;
+    }
   }
 
   .cloud-badge{
@@ -262,9 +327,6 @@
     .bills-table th:nth-child(4),.bills-table td:nth-child(4){display:none}
     .bills-card{width:100%;max-height:94vh}
   }
-  @media print{
-    .bills-modal{display:none!important}
-  }
 
 </style>
 </head>
@@ -324,7 +386,7 @@
 </div>
 
 <div class="topbar">
-  <h1>Nishi Trading Company — Bill Generator v10 Original Billbook Layouted</h1>
+  <h1>Nishi Trading Company — Bill Generator v12 Direct One-Page PDFed</h1>
   <div class="actions">
     <span class="cloud-badge local" id="cloudBadge"><span class="cloud-dot"></span><span id="cloudStatus">Local mode</span></span>
     <span class="user-chip" id="userChip"></span>
@@ -332,12 +394,13 @@
     <button id="allBillsBtn" onclick="openBillsDashboard()" style="display:none">All Bills</button>
     <button class="brand" onclick="newBill()">New Bill</button>
     <button onclick="saveBill()">Save Bill</button>
-    <button class="primary" onclick="printBill()">PDF / Print</button>
+    <button class="primary" id="pdfBtn" onclick="downloadBillPDF()">Download PDF</button>
+    <button onclick="printBill()">Print</button>
     <button onclick="exportData()">Backup</button>
     <label class="file-label">Restore<input type="file" accept=".json" onchange="importData(event)"></label>
   </div>
 </div>
-<div class="setup-banner" id="printBanner" style="display:block;background:#e8f4fd;border:1px solid #b6ddff;color:#12405d">Tip: For best bill colours in PDF/print, enable <b>Background graphics</b> in the browser print dialog and choose <b>Save as PDF</b> first if needed.</div>
+<div class="setup-banner" id="printBanner" style="display:block;background:#e8f4fd;border:1px solid #b6ddff;color:#12405d">Tip: Use <b>Download PDF</b> for the clean one-page invoice. Use <b>Print</b> only when you need the phone/browser print service.</div>
 
 <div class="app">
   <div class="panel editor-panel">
@@ -869,6 +932,76 @@ function newBill(){
   };
   setData(data);
 }
+async function downloadBillPDF(){
+  updatePreview();
+
+  const pdfBtn = $('pdfBtn');
+  const bill = $('billPage');
+  if(!bill) return;
+
+  if(typeof html2canvas === 'undefined' || !window.jspdf?.jsPDF){
+    alert('PDF generator is still loading. Please wait a moment and try again.');
+    return;
+  }
+
+  try{
+    if(pdfBtn){ pdfBtn.disabled=true; pdfBtn.textContent='Generating PDF...'; }
+    bill.classList.add('pdf-generating');
+
+    // Wait for all images (including Ganesh idol) and fonts before capture.
+    const imgs = Array.from(bill.querySelectorAll('img'));
+    await Promise.all(imgs.map(img => img.complete ? Promise.resolve() : new Promise(resolve => {
+      img.addEventListener('load', resolve, {once:true});
+      img.addEventListener('error', resolve, {once:true});
+    })));
+    if(document.fonts?.ready) await document.fonts.ready;
+
+    const canvas = await html2canvas(bill, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: '#fffdf8',
+      logging: false,
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: bill.scrollWidth,
+      windowHeight: bill.scrollHeight
+    });
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({orientation:'portrait', unit:'mm', format:'a4', compress:true});
+
+    // Always place the complete bill on ONE A4 page.
+    const pageW = 210, pageH = 297;
+    const margin = 2.5;
+    const maxW = pageW - margin*2;
+    const maxH = pageH - margin*2;
+    const ratio = canvas.width / canvas.height;
+
+    let drawW = maxW;
+    let drawH = drawW / ratio;
+    if(drawH > maxH){
+      drawH = maxH;
+      drawW = drawH * ratio;
+    }
+
+    const x = (pageW - drawW)/2;
+    const y = (pageH - drawH)/2;
+    const imgData = canvas.toDataURL('image/jpeg', 0.96);
+    pdf.addImage(imgData, 'JPEG', x, y, drawW, drawH, undefined, 'FAST');
+
+    const inv = ($('invoiceNo').value || 'Bill').replace(/[^a-zA-Z0-9_-]+/g,'_');
+    const cust = ($('customer').value || 'Customer').replace(/[^a-zA-Z0-9_-]+/g,'_');
+    pdf.save(`Bill_${inv}_${cust}.pdf`);
+  }catch(err){
+    console.error(err);
+    alert('Could not generate PDF. Please refresh the app and try again.');
+  }finally{
+    bill.classList.remove('pdf-generating');
+    if(pdfBtn){ pdfBtn.disabled=false; pdfBtn.textContent='Download PDF'; }
+  }
+}
+
 function printBill(){ updatePreview(); window.print(); }
 function exportData(){
   const payload={

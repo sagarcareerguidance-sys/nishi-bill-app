@@ -37,6 +37,7 @@ const localRenderHistory = window.renderHistory;
 const localLoadHistory = window.loadHistory;
 const localDeleteHistory = window.deleteHistory;
 const localNewBill = window.newBill;
+const localDownloadBillPDF = window.downloadBillPDF;
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, m => ({
@@ -320,8 +321,22 @@ window.saveBill = async function(options = {}) {
 };
 
 
-// PDF / Print now saves the bill to cloud first, so every generated bill
-// appears in the user's bill history after the next login.
+// Direct PDF generation saves the bill to cloud first, then creates a clean one-page PDF.
+window.downloadBillPDF = async function() {
+  window.updatePreview();
+
+  if (configured && cloudUser) {
+    const saved = await window.saveBill({ silent: true });
+    if (!saved) {
+      alert("The bill could not be saved to cloud, so PDF generation was cancelled.");
+      return;
+    }
+  }
+
+  return localDownloadBillPDF();
+};
+
+// System Print also saves the bill to cloud first. For mobile PDF files, use Download PDF instead.
 window.printBill = async function() {
   window.updatePreview();
 
