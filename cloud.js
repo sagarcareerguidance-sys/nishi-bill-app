@@ -17,6 +17,14 @@ const storageNote = document.getElementById("storageNote");
 const loginBtn = document.getElementById("loginBtn");
 const loginEmail = document.getElementById("loginEmail");
 const loginPassword = document.getElementById("loginPassword");
+const billsModal = document.getElementById("billsModal");
+const billsTableBody = document.getElementById("billsTableBody");
+const billsSummary = document.getElementById("billsSummary");
+const billsEmpty = document.getElementById("billsEmpty");
+const billSearch = document.getElementById("billSearch");
+const billDateFilter = document.getElementById("billDateFilter");
+const allBillsBtn = document.getElementById("allBillsBtn");
+
 
 let supabase = null;
 let cloudUser = null;
@@ -43,12 +51,14 @@ function setCloudUI(mode, email="") {
     cloudStatus.textContent = "Cloud connected";
     userChip.textContent = email || "";
     signOutBtn.style.display = "";
+    if (allBillsBtn) allBillsBtn.style.display = "";
     storageNote.textContent = "Bills are stored online for this login. Backup is still available as an extra copy.";
   } else {
     cloudBadge.classList.add("local");
     cloudStatus.textContent = "Local mode";
     userChip.textContent = "";
     signOutBtn.style.display = "none";
+    if (allBillsBtn) allBillsBtn.style.display = "none";
     storageNote.textContent = "Bills are stored only in this browser/device. Use Backup regularly.";
   }
 }
@@ -61,6 +71,7 @@ function companySettingsFromForm() {
     officeAddress: document.getElementById("officeAddress").value,
     contactLeft: document.getElementById("contactLeft").value,
     phone: document.getElementById("phone").value,
+    proprietorTop: document.getElementById("proprietorTop").value,
     pan: document.getElementById("pan").value,
     bankName: document.getElementById("bankName").value,
     accountNo: document.getElementById("accountNo").value,
@@ -88,7 +99,7 @@ function applyCloudSettings(settings) {
   if (!settings) return;
   const keys = [
     "companyEn","companyMr","tagline","officeAddress","contactLeft","phone",
-    "pan","bankName","accountNo","ifsc","terms"
+    "proprietorTop","pan","bankName","accountNo","ifsc","terms"
   ];
   keys.forEach(k => {
     const el = document.getElementById(k);
@@ -124,6 +135,7 @@ async function refreshCloudBills() {
   if (error) throw error;
   cloudBills = data || [];
   renderCloudHistory();
+  renderBillsDashboard();
 }
 
 function renderCloudHistory() {
@@ -146,6 +158,117 @@ function renderCloudHistory() {
     </div>`).join("");
 }
 
+
+function formatUpdated(v) {
+  if (!v) return "";
+  try {
+    return new Date(v).toLocaleString("en-IN", {
+      day:"2-digit", month:"2-digit", year:"numeric",
+      hour:"2-digit", minute:"2-digit"
+    });
+  } catch {
+    return "";
+  }
+}
+
+function findCloudBillById(id) {
+  return cloudBills.find(b => String(b.id) === String(id));
+}
+
+window.openBillsDashboard = function() {
+  if (!billsModal) return;
+  renderBillsDashboard();
+  billsModal.classList.add("open");
+  billsModal.setAttribute("aria-hidden","false");
+};
+
+window.closeBillsDashboard = function() {
+  if (!billsModal) return;
+  billsModal.classList.remove("open");
+  billsModal.setAttribute("aria-hidden","true");
+};
+
+window.newBillFromDashboard = function() {
+  window.closeBillsDashboard();
+  window.newBill();
+  setTimeout(() => document.getElementById("customer")?.focus(), 50);
+};
+
+window.renderBillsDashboard = function() {
+  if (!billsTableBody || !billsSummary || !billsEmpty) return;
+
+  const q = (billSearch?.value || "").trim().toLowerCase();
+  const date = billDateFilter?.value || "";
+
+  const filtered = cloudBills.filter(b => {
+    const invoice = String(b.invoice_no || "").toLowerCase();
+    const customer = String(b.customer || "").toLowerCase();
+    const matchQ = !q || invoice.includes(q) || customer.includes(q);
+    const matchDate = !date || String(b.bill_date || "").slice(0,10) === date;
+    return matchQ && matchDate;
+  });
+
+  billsSummary.textContent = `${filtered.length} bill${filtered.length === 1 ? "" : "s"} shown • ${cloudBills.length} total`;
+
+  if (!filtered.length) {
+    billsTableBody.innerHTML = "";
+    billsEmpty.style.display = "block";
+    return;
+  }
+
+  billsEmpty.style.display = "none";
+  billsTableBody.innerHTML = filtered.map(b => `
+    <tr>
+      <td><b>#${escapeHtml(b.invoice_no || "")}</b></td>
+      <td>${b.bill_date ? formatDate(b.bill_date) : ""}</td>
+      <td>${escapeHtml(b.customer || "")}</td>
+      <td>${formatUpdated(b.updated_at)}</td>
+      <td class="actions-cell">
+        <button class="primary-mini" onclick="cloudOpenBillById('${b.id}')">Open</button>
+        <button onclick="cloudPrintBillById('${b.id}')">Print</button>
+        <button onclick="cloudDeleteBillById('${b.id}')">Delete</button>
+      </td>
+    </tr>
+  `).join("");
+};
+
+window.cloudOpenBillById = function(id) {
+  const bill = findCloudBillById(id);
+  if (!bill?.payload) return;
+  window.setData(bill.payload);
+  window.closeBillsDashboard();
+};
+
+window.cloudPrintBillById = async function(id) {
+  const bill = findCloudBillById(id);
+  if (!bill?.payload) return;
+  window.setData(bill.payload);
+  window.closeBillsDashboard();
+  await new Promise(r => setTimeout(r, 150));
+  window.updatePreview();
+  window.print();
+};
+
+window.cloudDeleteBillById = async function(id) {
+  const bill = findCloudBillById(id);
+  if (!bill) return;
+  if (!confirm(`Delete Bill #${bill.invoice_no}?`)) return;
+
+  const { error } = await supabase.from("bills").delete().eq("id", bill.id);
+  if (error) {
+    alert("Delete failed: " + error.message);
+    return;
+  }
+  await refreshCloudBills();
+};
+
+// Close history modal when the user clicks the dark backdrop.
+if (billsModal) {
+  billsModal.addEventListener("click", e => {
+    if (e.target === billsModal) window.closeBillsDashboard();
+  });
+}
+
 function formatDate(v) {
   if (!v) return "";
   const s = String(v).slice(0,10);
@@ -153,16 +276,20 @@ function formatDate(v) {
   return `${d}/${m}/${y}`;
 }
 
-window.saveBill = async function() {
+window.saveBill = async function(options = {}) {
+  const silent = Boolean(options?.silent);
+
   if (!configured || !cloudUser) {
-    return localSaveBill();
+    const result = localSaveBill();
+    return result ?? true;
   }
+
   try {
     const data = window.getData();
     const invoiceNo = String(data.invoiceNo || "").trim();
     if (!invoiceNo) {
-      alert("Please enter Invoice No.");
-      return;
+      if (!silent) alert("Please enter Invoice No.");
+      return false;
     }
 
     await saveCloudSettings();
@@ -182,11 +309,31 @@ window.saveBill = async function() {
 
     if (error) throw error;
     await refreshCloudBills();
-    alert("Bill saved to cloud.");
+
+    if (!silent) alert("Bill saved to cloud.");
+    return true;
   } catch (e) {
     console.error(e);
-    alert("Cloud save failed: " + (e.message || e));
+    if (!silent) alert("Cloud save failed: " + (e.message || e));
+    return false;
   }
+};
+
+
+// PDF / Print now saves the bill to cloud first, so every generated bill
+// appears in the user's bill history after the next login.
+window.printBill = async function() {
+  window.updatePreview();
+
+  if (configured && cloudUser) {
+    const saved = await window.saveBill({ silent: true });
+    if (!saved) {
+      alert("The bill could not be saved to cloud, so printing was cancelled.");
+      return;
+    }
+  }
+
+  window.print();
 };
 
 window.cloudLoadHistory = function(i) {
@@ -239,6 +386,7 @@ window.newBill = function() {
 
 window.cloudSignOut = async function() {
   if (!supabase) return;
+  window.closeBillsDashboard?.();
   await supabase.auth.signOut();
 };
 
@@ -250,6 +398,7 @@ async function afterLogin(user) {
   try {
     await loadCloudSettings();
     await refreshCloudBills();
+    setTimeout(() => window.openBillsDashboard(), 150);
   } catch (e) {
     console.error(e);
     alert("Logged in, but cloud data could not be loaded: " + (e.message || e));

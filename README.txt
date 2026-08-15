@@ -1,16 +1,14 @@
-NISHI TRADING COMPANY BILL GENERATOR v5 CLOUD
+NISHI TRADING COMPANY BILL GENERATOR v8 ORIGINAL HEADER
 
-Start with SETUP.md.
+Changes in v8:
+- Header behind "NISHI TRADING COMPANY" redesigned to match the original printed bill style more closely.
+- Added pink/magenta gradient background behind the company name.
+- Marathi company name now appears in bright yellow like the bill book.
+- Export tagline now sits inside a blue ribbon-style box.
+- Office address line changed to a yellow band similar to the original bill.
+- Added editable top-right proprietor text field:
+  "Pro. Sham Bhausaheb Aher"
+- Existing cloud login, all-bills history, and printing features remain intact.
 
-Files:
-- index.html              Main bill application
-- cloud.js                Login + cloud database logic
-- config.js               Supabase URL and publishable key
-- supabase_schema.sql     Database + RLS security setup
-- vercel.json             Vercel deployment settings
-- manifest.webmanifest    Installable app metadata
-- sw.js                   Static app cache
-- SETUP.md                Deployment guide
-
-IMPORTANT:
-Never put a Supabase service_role key or any secret server key in config.js.
+Deployment:
+Replace the existing repository files with this version and commit changes.

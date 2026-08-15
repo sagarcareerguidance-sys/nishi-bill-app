@@ -13,13 +13,21 @@
     --brand:#8d1233;
     --brand2:#c21848;
     --gold:#f3c443;
+    --header-pink-1:#d94883;
+    --header-pink-2:#bd2d6e;
+    --header-pink-3:#8c1348;
+    --header-yellow:#f3d437;
+    --header-blue:#2b4f8a;
     --ink:#3b2b2b;
     --line:#ba526a;
     --paper:#fffdf8;
     --ui:#f3f4f7;
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--ui);color:#222}
+  *{-webkit-print-color-adjust:exact; print-color-adjust:exact}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--ui);color:#222;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
   .topbar{
     position:sticky;top:0;z-index:50;
     display:flex;gap:10px;align-items:center;justify-content:space-between;
@@ -61,36 +69,53 @@
   .preview-wrap{overflow:auto;padding:6px}
   .bill-page{
     width:210mm; min-height:297mm; margin:0 auto; background:var(--paper);
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
     color:var(--ink); border:1.2px solid var(--line); position:relative;
     font-family:Arial,Helvetica,sans-serif; font-size:11px;
     box-shadow:0 3px 18px #0002;
   }
   .jurisdiction{
-    height:10mm;display:flex;justify-content:space-between;align-items:center;
-    padding:1.8mm 4mm;border-bottom:1px solid var(--line);font-size:9px
+    min-height:10mm;display:flex;justify-content:space-between;align-items:center;
+    padding:1.8mm 4mm;border-bottom:1px solid var(--line);font-size:9px;background:#f8f1d8
   }
   .head{
     display:grid;grid-template-columns:27mm 1fr 27mm;align-items:center;
-    padding:2mm 4mm 1.7mm;background:linear-gradient(#9a2440,#b62e4f);color:#fff;border-bottom:1px solid var(--line)
+    padding:2mm 4mm 2mm;
+    background:linear-gradient(180deg,var(--header-pink-1) 0%, var(--header-pink-2) 55%, var(--header-pink-3) 100%);
+    color:#fff;border-bottom:1px solid var(--line)
   }
   .logo-box{
-    height:24mm;border:1px solid #ffffff99;border-radius:4px;display:flex;align-items:center;justify-content:center;
-    overflow:hidden;background:#fff3;color:#fff;text-align:center;font-size:10px
+    height:24mm;border:1px solid #f9d3e3;border-radius:4px;display:flex;align-items:center;justify-content:center;
+    overflow:hidden;background:#fff7ec;color:#fff;text-align:center;font-size:10px;
+    box-shadow:inset 0 0 0 1px #ffffff55
   }
-  .logo-box img{width:100%;height:100%;object-fit:contain;background:#fff}
+  .logo-box img{width:100%;height:100%;object-fit:contain;background:#fff7ec}
   .company{text-align:center}
-  .company .en{font-size:23px;font-weight:900;letter-spacing:.5px;text-shadow:0 1px 0 #0002}
-  .company .mr{font-size:18px;color:#ffcc33;font-weight:900;margin-top:1px}
-  .company .tag{display:inline-block;margin-top:3px;background:#f7f3e7;color:#2b406e;font-weight:900;padding:2px 10px;border-radius:10px;font-size:11px}
-  .address{font-size:8.5px;text-align:center;padding:1mm 3mm;border-bottom:1px solid var(--line);font-weight:700}
+  .company .en{
+    font-size:23px;font-weight:900;letter-spacing:.6px;text-shadow:0 1px 0 #0003;
+    color:#fff
+  }
+  .company .mr{
+    font-size:18px;color:var(--header-yellow);font-weight:900;margin-top:1px;
+    text-shadow:0 1px 0 #7a1540
+  }
+  .company .tag{
+    display:inline-block;margin-top:4px;background:var(--header-blue);color:#fff;
+    font-weight:900;padding:2px 12px;border-radius:4px;font-size:11px;
+    border:1px solid #d2d8ec
+  }
+  .address{
+    font-size:8.5px;text-align:center;padding:1mm 3mm;border-bottom:1px solid var(--line);
+    font-weight:700;background:#f3c85e;color:#5e1e34
+  }
   .invoice-band{
     display:grid;grid-template-columns:1fr 1.2fr 1fr;align-items:center;border-bottom:1px solid var(--line);height:11mm
   }
   .invoice-band > div{padding:2mm 3mm}
   .invoice-center{
-    text-align:center;background:linear-gradient(90deg,#dfb631,#f6df78,#dfb631);
+    text-align:center;background:linear-gradient(90deg,#70934d 0%, #8fb066 30%, #c3d68c 50%, #8fb066 70%, #70934d 100%);
     clip-path:polygon(7% 0,93% 0,100% 50%,93% 100%,7% 100%,0 50%);
-    font-weight:900;font-size:14px;color:#6b5520
+    font-weight:900;font-size:14px;color:#fff7d8;text-shadow:0 1px 0 #49632f
   }
   .info{
     display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line)
@@ -191,6 +216,43 @@
   }
   .setup-banner strong{color:#4b3800}
 
+
+  .bills-modal{
+    position:fixed;inset:0;z-index:9000;background:#0008;display:none;
+    align-items:center;justify-content:center;padding:18px
+  }
+  .bills-modal.open{display:flex}
+  .bills-card{
+    width:min(1000px,96vw);max-height:90vh;background:#fff;border-radius:14px;
+    box-shadow:0 24px 80px #0005;overflow:hidden;display:flex;flex-direction:column
+  }
+  .bills-head{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:14px 16px;background:#1f2430;color:#fff
+  }
+  .bills-head h2{margin:0;font-size:18px}
+  .bills-tools{
+    display:grid;grid-template-columns:1fr 180px;gap:10px;padding:12px 16px;border-bottom:1px solid #e7e9ee
+  }
+  .bills-body{padding:0 16px 16px;overflow:auto}
+  .bills-summary{padding:10px 16px;font-size:12px;color:#555;background:#fafafa;border-bottom:1px solid #eee}
+  .bills-table{width:100%;border-collapse:collapse;font-size:12px}
+  .bills-table th,.bills-table td{padding:9px 8px;border-bottom:1px solid #eceef2;text-align:left;vertical-align:middle}
+  .bills-table th{position:sticky;top:0;background:#f5f6f8;z-index:1;font-size:11px}
+  .bills-table td.actions-cell{white-space:nowrap;text-align:right}
+  .bills-table button{padding:6px 8px;margin-left:4px;background:#edf0f4}
+  .bills-table button.primary-mini{background:var(--brand2);color:#fff}
+  .bills-empty{padding:30px;text-align:center;color:#777}
+  .close-x{background:#ffffff18;color:#fff;border:1px solid #ffffff33;padding:7px 10px}
+  @media(max-width:700px){
+    .bills-tools{grid-template-columns:1fr}
+    .bills-table th:nth-child(4),.bills-table td:nth-child(4){display:none}
+    .bills-card{width:100%;max-height:94vh}
+  }
+  @media print{
+    .bills-modal{display:none!important}
+  }
+
 </style>
 </head>
 <body>
@@ -212,12 +274,49 @@
   <strong>Setup mode:</strong> Cloud login/database are not configured yet. The bill generator is running in local-browser mode.
 </div>
 
+
+<div class="bills-modal" id="billsModal" aria-hidden="true">
+  <div class="bills-card">
+    <div class="bills-head">
+      <div>
+        <h2>All Generated Bills</h2>
+        <div style="font-size:11px;opacity:.8">Cloud bill history for the logged-in user</div>
+      </div>
+      <div>
+        <button onclick="newBillFromDashboard()" class="primary">+ New Bill</button>
+        <button onclick="closeBillsDashboard()" class="close-x">Close</button>
+      </div>
+    </div>
+    <div class="bills-tools">
+      <input id="billSearch" placeholder="Search invoice no. or customer..." oninput="renderBillsDashboard()">
+      <input id="billDateFilter" type="date" onchange="renderBillsDashboard()">
+    </div>
+    <div class="bills-summary" id="billsSummary">0 bills</div>
+    <div class="bills-body">
+      <table class="bills-table">
+        <thead>
+          <tr>
+            <th>Invoice</th>
+            <th>Date</th>
+            <th>Customer</th>
+            <th>Last Updated</th>
+            <th style="text-align:right">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="billsTableBody"></tbody>
+      </table>
+      <div class="bills-empty" id="billsEmpty" style="display:none">No generated bills found.</div>
+    </div>
+  </div>
+</div>
+
 <div class="topbar">
-  <h1>Nishi Trading Company — Bill Generator v5 Cloud</h1>
+  <h1>Nishi Trading Company — Bill Generator v8 Original Header</h1>
   <div class="actions">
     <span class="cloud-badge local" id="cloudBadge"><span class="cloud-dot"></span><span id="cloudStatus">Local mode</span></span>
     <span class="user-chip" id="userChip"></span>
     <button id="signOutBtn" style="display:none" onclick="cloudSignOut()">Sign out</button>
+    <button id="allBillsBtn" onclick="openBillsDashboard()" style="display:none">All Bills</button>
     <button class="brand" onclick="newBill()">New Bill</button>
     <button onclick="saveBill()">Save Bill</button>
     <button class="primary" onclick="printBill()">PDF / Print</button>
@@ -225,6 +324,7 @@
     <label class="file-label">Restore<input type="file" accept=".json" onchange="importData(event)"></label>
   </div>
 </div>
+<div class="setup-banner" id="printBanner" style="display:block;background:#e8f4fd;border:1px solid #b6ddff;color:#12405d">Tip: For best bill colours in PDF/print, enable <b>Background graphics</b> in the browser print dialog and choose <b>Save as PDF</b> first if needed.</div>
 
 <div class="app">
   <div class="panel editor-panel">
@@ -266,11 +366,12 @@
       <div><label>Office Address</label><input id="officeAddress" value='OFFICE: "ONION COMPLEX" APMC MARKET YARD, CHANDWAD - 423 101 DIST.: NASHIK (M.S.)'></div>
       <div><label>Subject / Email Text</label><input id="contactLeft" value="Subject to Chandwad Jurisdiction | Email: shamaher45@gmail.com"></div>
       <div><label>Phone</label><input id="phone" value="9158298024, 8329667565"></div>
+      <div><label>Top Right Proprietor Name</label><input id="proprietorTop" value="Pro. Sham Bhausaheb Aher"></div>
       <div><label>PAN</label><input id="pan" value="CYQPA8903C"></div>
       <div><label>Bank / Branch</label><input id="bankName" value="HDFC BANK CHANDWAD BR."></div>
       <div><label>Bank A/c No.</label><input id="accountNo" value="50200056392670"></div>
       <div><label>IFSC</label><input id="ifsc" value="HDFC0004127"></div>
-      <div><label>Logo / Deity Image (optional)</label><input id="logoInput" type="file" accept="image/*"></div>
+      <div><label>Ganesh Idol / Deity Image</label><input id="logoInput" type="file" accept="image/*"></div>
     </div>
 
     <h2>Terms & Conditions</h2>
@@ -289,7 +390,10 @@ D) Payment Condition 7 Days when over then 2% p.a. Extra From Billing Date.</tex
       <section class="bill-page" id="billPage">
         <div class="jurisdiction">
           <div id="pvContactLeft">Subject to Chandwad Jurisdiction | Email: shamaher45@gmail.com</div>
+          <div style="text-align:right">
+          <div style="font-weight:900;color:#8d1233" id="pvProprietorTop">Pro. Sham Bhausaheb Aher</div>
           <div>☎ <span id="pvPhone">9158298024, 8329667565</span></div>
+        </div>
         </div>
 
         <div class="head">
@@ -430,6 +534,7 @@ const splitMoney = n => {
   return {rs: rupees.toLocaleString('en-IN'), ps: String(paise).padStart(2,'0')};
 };
 const esc = s => String(s ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+var DEFAULT_GANESH_ICON = 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 240 240\'>  <rect width=\'240\' height=\'240\' rx=\'16\' fill=\'#fffaf3\'/>  <circle cx=\'120\' cy=\'52\' r=\'16\' fill=\'#d8a12d\'/>  <path d=\'M75 98c0-24 20-44 45-44s45 20 45 44c0 17-8 32-21 40 10 8 16 19 16 32 0 25-18 46-40 46s-40-21-40-46c0-13 6-24 16-32-13-8-21-23-21-40z\' fill=\'none\' stroke=\'#a82645\' stroke-width=\'10\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/>  <path d=\'M120 99c18 0 33 16 33 35 0 18-13 29-25 37-12 8-16 18-16 29\' fill=\'none\' stroke=\'#a82645\' stroke-width=\'10\' stroke-linecap=\'round\'/>  <path d=\'M120 98c-18 0-33 16-33 35 0 10 4 18 10 25\' fill=\'none\' stroke=\'#a82645\' stroke-width=\'10\' stroke-linecap=\'round\'/>  <path d=\'M146 103c6-6 16-7 22-2 7 5 8 15 3 22\' fill=\'none\' stroke=\'#a82645\' stroke-width=\'8\' stroke-linecap=\'round\'/>  <path d=\'M94 102c-6-7-16-8-23-4-7 5-9 15-5 23\' fill=\'none\' stroke=\'#a82645\' stroke-width=\'8\' stroke-linecap=\'round\'/>  <circle cx=\'102\' cy=\'112\' r=\'4\' fill=\'#a82645\'/>  <circle cx=\'138\' cy=\'112\' r=\'4\' fill=\'#a82645\'/>  <path d=\'M97 154c9 7 20 10 30 10 12 0 24-3 34-10\' fill=\'none\' stroke=\'#d8a12d\' stroke-width=\'8\' stroke-linecap=\'round\'/>  <path d=\'M114 52l6-18 6 18\' fill=\'none\' stroke=\'#d8a12d\' stroke-width=\'6\' stroke-linecap=\'round\'/>  <text x=\'120\' y=\'225\' text-anchor=\'middle\' font-family=\'Arial,Helvetica,sans-serif\' font-size=\'18\' font-weight=\'700\' fill=\'#a82645\'>श्री गणेशाय नमः</text></svg>';
 var logoData = localStorage.getItem('nishiLogo') || '';
 window.setBillLogoData = function(data){ logoData=data||''; if(logoData)localStorage.setItem('nishiLogo',logoData); else localStorage.removeItem('nishiLogo'); updatePreview(); };
 
@@ -532,7 +637,7 @@ function renderEditors(){
 const bindIds = [
   'invoiceNo','billDate','customer','contactPerson','orderedBy','challanNo','fromPlace','toPlace',
   'commission','truckCash','otherAdjustment','wordsOverride','remarks',
-  'companyEn','companyMr','tagline','officeAddress','contactLeft','phone','pan','bankName','accountNo','ifsc','terms'
+  'companyEn','companyMr','tagline','officeAddress','contactLeft','phone','proprietorTop','pan','bankName','accountNo','ifsc','terms'
 ];
 bindIds.forEach(id=>$(`${id}`).addEventListener('input',updatePreview));
 
@@ -592,6 +697,7 @@ function amountWords(v){
 function updatePreview(){
   $('pvContactLeft').textContent=$('contactLeft').value;
   $('pvPhone').textContent=$('phone').value;
+  if($('pvProprietorTop')) $('pvProprietorTop').textContent=$('proprietorTop').value;
   $('pvCompanyEn').textContent=$('companyEn').value;
   $('pvCompanyEn2').textContent=$('companyEn').value;
   $('pvCompanyMr').textContent=$('companyMr').value;
@@ -612,8 +718,8 @@ function updatePreview(){
   $('pvTerms').innerHTML=esc($('terms').value).replace(/\n/g,'<br>');
   $('pvRemarks').textContent=$('remarks').value;
 
-  if(logoData) $('pvLogoBox').innerHTML=`<img src="${logoData}" alt="Logo">`;
-  else $('pvLogoBox').innerHTML='<span>LOGO /<br>DEITY</span>';
+  const displayLogo = logoData || DEFAULT_GANESH_ICON;
+  $('pvLogoBox').innerHTML=`<img src="${displayLogo}" alt="Ganesh Idol">`;
 
   $('pvParticulars').innerHTML=items.map(it=>`
     <div style="margin-bottom:5mm">
@@ -704,7 +810,7 @@ function saveBill(){
   // save company settings separately
   localStorage.setItem('nishiCompanySettings',JSON.stringify({
     companyEn:data.companyEn,companyMr:data.companyMr,tagline:data.tagline,officeAddress:data.officeAddress,
-    contactLeft:data.contactLeft,phone:data.phone,pan:data.pan,bankName:data.bankName,accountNo:data.accountNo,
+    contactLeft:data.contactLeft,phone:data.phone,proprietorTop:data.proprietorTop,pan:data.pan,bankName:data.bankName,accountNo:data.accountNo,
     ifsc:data.ifsc,terms:data.terms
   }));
   renderHistory();
@@ -736,6 +842,7 @@ function newBill(){
     companyEn:company.companyEn||$('companyEn').value,companyMr:company.companyMr||$('companyMr').value,
     tagline:company.tagline||$('tagline').value,officeAddress:company.officeAddress||$('officeAddress').value,
     contactLeft:company.contactLeft||$('contactLeft').value,phone:company.phone||$('phone').value,
+    proprietorTop:company.proprietorTop||$('proprietorTop').value,
     pan:company.pan||$('pan').value,bankName:company.bankName||$('bankName').value,
     accountNo:company.accountNo||$('accountNo').value,ifsc:company.ifsc||$('ifsc').value,
     terms:company.terms||$('terms').value,items:defaultItems(),expenses:defaultExpenses()
