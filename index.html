@@ -9,7 +9,7 @@
 
 <script>
 (function(){
-  const VERSION = "nishi-v14";
+  const VERSION = "nishi-v15";
   try{
     if(localStorage.getItem("nishiAppVersion") !== VERSION){
       localStorage.setItem("nishiAppVersion", VERSION);
@@ -215,7 +215,7 @@
   .center{text-align:center}
   .muted{color:#777}
   .print-title{display:none}
-  .pdf-generating{opacity:.72;pointer-events:none}
+  .pdf-generating{pointer-events:none}
   @media(max-width:1100px){
     .app{grid-template-columns:1fr}
     .panel{height:auto;max-height:none}
@@ -412,7 +412,7 @@
 </div>
 
 <div class="topbar">
-  <h1>Nishi Trading Company — Bill Generator v14 Cache Refresh Fixed <span id="appVersionBadge" style="font-size:10px;font-weight:700;opacity:.8">v14</span></h1>
+  <h1>Nishi Trading Company — Bill Generator v15 Color Accurate PDF <span id="appVersionBadge" style="font-size:10px;font-weight:700;opacity:.8">v15</span></h1>
   <div class="actions">
     <span class="cloud-badge local" id="cloudBadge"><span class="cloud-dot"></span><span id="cloudStatus">Local mode</span></span>
     <span class="user-chip" id="userChip"></span>
@@ -424,7 +424,7 @@
     <button onclick="printBill()">Print</button>
       </div>
 </div>
-<div class="setup-banner" id="printBanner" style="display:block;background:#e8f4fd;border:1px solid #b6ddff;color:#12405d">Version <b>v14</b>: Tap <b>Download Bill PDF</b> for a clean one-page A4 PDF. If you do not see this text, your phone is still showing the old cached app.</div>
+<div class="setup-banner" id="printBanner" style="display:block;background:#e8f4fd;border:1px solid #b6ddff;color:#12405d">Version <b>v15</b>: <b>Download Bill PDF</b> now preserves the same strong bill-book colours as Print, while keeping the invoice on one A4 page.</div>
 
 <div class="app">
   <div class="panel editor-panel">
@@ -970,6 +970,7 @@ async function downloadBillPDF(){
 
   try{
     if(pdfBtn){ pdfBtn.disabled=true; pdfBtn.textContent='Generating PDF...'; }
+    // Do not reduce bill opacity here: html2canvas captures visual opacity into the PDF.
     bill.classList.add('pdf-generating');
 
     // Wait for all images (including Ganesh idol) and fonts before capture.
@@ -989,7 +990,15 @@ async function downloadBillPDF(){
       scrollX: 0,
       scrollY: 0,
       windowWidth: bill.scrollWidth,
-      windowHeight: bill.scrollHeight
+      windowHeight: bill.scrollHeight,
+      onclone: (clonedDoc) => {
+        const clonedBill = clonedDoc.getElementById('billPage');
+        if(clonedBill){
+          clonedBill.style.opacity = '1';
+          clonedBill.style.filter = 'none';
+          clonedBill.style.webkitFilter = 'none';
+        }
+      }
     });
 
     const { jsPDF } = window.jspdf;
@@ -1011,8 +1020,8 @@ async function downloadBillPDF(){
 
     const x = (pageW - drawW)/2;
     const y = (pageH - drawH)/2;
-    const imgData = canvas.toDataURL('image/jpeg', 0.96);
-    pdf.addImage(imgData, 'JPEG', x, y, drawW, drawH, undefined, 'FAST');
+    const imgData = canvas.toDataURL('image/png');
+    pdf.addImage(imgData, 'PNG', x, y, drawW, drawH, undefined, 'FAST');
 
     const inv = ($('invoiceNo').value || 'Bill').replace(/[^a-zA-Z0-9_-]+/g,'_');
     const cust = ($('customer').value || 'Customer').replace(/[^a-zA-Z0-9_-]+/g,'_');
