@@ -1,25 +1,17 @@
-NISHI TRADING COMPANY BILL GENERATOR v12 DIRECT ONE-PAGE PDF
+NISHI TRADING COMPANY BILL GENERATOR v13 PDF DOWNLOAD ONLY
 
-Why this version was needed:
-- A mobile-generated PDF was coming out as 2 pages.
-- Browser/mobile print services can add their own URL, date, Page 1 of 2 footer/header and extra margins.
-- The bottom bank/signature section was being pushed to page 2.
+Change in v13:
+- Removed JSON Backup and Restore buttons from the client toolbar.
+- The visible download action is now clearly named "Download Bill PDF".
+- Downloaded invoice filename always ends in .pdf.
+- The direct PDF generator still fits the complete bill onto one A4 page.
+- Supabase cloud saving remains active before PDF generation.
+- The normal Print button remains for physical printing.
 
-Fix in v12:
-- New Download PDF button generates the invoice directly inside the app.
-- It captures ONLY the bill, so browser URL/date/page-number headers are not included.
-- The complete bill is scaled proportionally to ONE A4 page.
-- Ganesh image and bill-book colours are included in the captured bill.
-- The bill is automatically saved to Supabase before PDF generation.
-- A separate Print button remains for physical printing.
+Client workflow:
+1. Fill bill details.
+2. Tap Download Bill PDF.
+3. A .pdf invoice file is downloaded.
+4. Share or print that PDF.
 
-Recommended mobile workflow:
-1. Fill bill.
-2. Tap Download PDF.
-3. Share/print the downloaded PDF.
-
-Deployment:
-1. Replace files in the GitHub repository.
-2. Commit changes.
-3. Let Vercel redeploy.
-4. On mobile, close/reopen the site and refresh.
+This prevents the client from accidentally downloading the JSON data-backup file instead of the invoice.

@@ -386,7 +386,7 @@
 </div>
 
 <div class="topbar">
-  <h1>Nishi Trading Company — Bill Generator v12 Direct One-Page PDFed</h1>
+  <h1>Nishi Trading Company — Bill Generator v13 PDF Download Onlyed</h1>
   <div class="actions">
     <span class="cloud-badge local" id="cloudBadge"><span class="cloud-dot"></span><span id="cloudStatus">Local mode</span></span>
     <span class="user-chip" id="userChip"></span>
@@ -394,13 +394,11 @@
     <button id="allBillsBtn" onclick="openBillsDashboard()" style="display:none">All Bills</button>
     <button class="brand" onclick="newBill()">New Bill</button>
     <button onclick="saveBill()">Save Bill</button>
-    <button class="primary" id="pdfBtn" onclick="downloadBillPDF()">Download PDF</button>
+    <button class="primary" id="pdfBtn" onclick="downloadBillPDF()">Download Bill PDF</button>
     <button onclick="printBill()">Print</button>
-    <button onclick="exportData()">Backup</button>
-    <label class="file-label">Restore<input type="file" accept=".json" onchange="importData(event)"></label>
-  </div>
+      </div>
 </div>
-<div class="setup-banner" id="printBanner" style="display:block;background:#e8f4fd;border:1px solid #b6ddff;color:#12405d">Tip: Use <b>Download PDF</b> for the clean one-page invoice. Use <b>Print</b> only when you need the phone/browser print service.</div>
+<div class="setup-banner" id="printBanner" style="display:block;background:#e8f4fd;border:1px solid #b6ddff;color:#12405d">Tip: Tap <b>Download Bill PDF</b>. The downloaded file will be a <b>.pdf</b> invoice, not a JSON backup file.</div>
 
 <div class="app">
   <div class="panel editor-panel">
@@ -458,7 +456,7 @@ D) Payment Condition 7 Days when over then 2% p.a. Extra From Billing Date.</tex
 
     <h2>Saved Bills</h2>
     <div class="history-list" id="history"></div>
-    <p class="small" id="storageNote">Bills are stored only in this browser/device. Use “Backup” regularly.</p>
+    <p class="small" id="storageNote">Bills are stored in the app/database. Use <b>Download Bill PDF</b> when you need the invoice file.</p>
   </div>
 
   <div class="panel preview-panel">
@@ -998,7 +996,7 @@ async function downloadBillPDF(){
     alert('Could not generate PDF. Please refresh the app and try again.');
   }finally{
     bill.classList.remove('pdf-generating');
-    if(pdfBtn){ pdfBtn.disabled=false; pdfBtn.textContent='Download PDF'; }
+    if(pdfBtn){ pdfBtn.disabled=false; pdfBtn.textContent='Download Bill PDF'; }
   }
 }
 
