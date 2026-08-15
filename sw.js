@@ -1,4 +1,4 @@
-const CACHE="nishi-cloud-v8";
+const CACHE="nishi-cloud-v10";
 const CORE=["./","./index.html","./config.js","./manifest.webmanifest"];
 self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE))));
 self.addEventListener("activate",e=>e.waitUntil(

@@ -75,38 +75,42 @@
     box-shadow:0 3px 18px #0002;
   }
   .jurisdiction{
-    min-height:10mm;display:flex;justify-content:space-between;align-items:center;
-    padding:1.8mm 4mm;border-bottom:1px solid var(--line);font-size:9px;background:#f8f1d8
+    min-height:10mm;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+    padding:1.3mm 4mm;border-bottom:1px solid var(--line);font-size:9px;background:#efe7cb;
+    color:#3b2d1f
   }
+  .jurisdiction .left-top{justify-self:start}
+  .jurisdiction .center-top{justify-self:center;font-weight:900;color:#8d1233}
+  .jurisdiction .right-top{justify-self:end;text-align:right}
   .head{
-    display:grid;grid-template-columns:27mm 1fr 27mm;align-items:center;
-    padding:2mm 4mm 2mm;
-    background:linear-gradient(180deg,var(--header-pink-1) 0%, var(--header-pink-2) 55%, var(--header-pink-3) 100%);
+    display:grid;grid-template-columns:27mm 1fr 29mm;align-items:center;
+    padding:2mm 4mm 1.8mm;
+    background:linear-gradient(180deg,#da5a95 0%, #c92f77 42%, #a00f55 70%, #890c46 100%);
     color:#fff;border-bottom:1px solid var(--line)
   }
   .logo-box{
-    height:24mm;border:1px solid #f9d3e3;border-radius:4px;display:flex;align-items:center;justify-content:center;
-    overflow:hidden;background:#fff7ec;color:#fff;text-align:center;font-size:10px;
+    height:24mm;border:1px solid #f7cada;border-radius:4px;display:flex;align-items:center;justify-content:center;
+    overflow:hidden;background:#fff8ef;color:#fff;text-align:center;font-size:10px;
     box-shadow:inset 0 0 0 1px #ffffff55
   }
-  .logo-box img{width:100%;height:100%;object-fit:contain;background:#fff7ec}
+  .logo-box img{width:100%;height:100%;object-fit:contain;background:#fff8ef;padding:1mm}
   .company{text-align:center}
   .company .en{
-    font-size:23px;font-weight:900;letter-spacing:.6px;text-shadow:0 1px 0 #0003;
+    font-size:23px;font-weight:900;letter-spacing:.7px;text-shadow:0 1px 0 #0003;
     color:#fff
   }
   .company .mr{
-    font-size:18px;color:var(--header-yellow);font-weight:900;margin-top:1px;
+    font-size:18px;color:#ffd728;font-weight:900;margin-top:1px;
     text-shadow:0 1px 0 #7a1540
   }
   .company .tag{
-    display:inline-block;margin-top:4px;background:var(--header-blue);color:#fff;
+    display:inline-block;margin-top:4px;background:#355d9e;color:#fff;
     font-weight:900;padding:2px 12px;border-radius:4px;font-size:11px;
-    border:1px solid #d2d8ec
+    border:1px solid #d2d8ec;box-shadow:inset 0 0 0 1px #ffffff44
   }
   .address{
     font-size:8.5px;text-align:center;padding:1mm 3mm;border-bottom:1px solid var(--line);
-    font-weight:700;background:#f3c85e;color:#5e1e34
+    font-weight:700;background:#efc55a;color:#6c1739
   }
   .invoice-band{
     display:grid;grid-template-columns:1fr 1.2fr 1fr;align-items:center;border-bottom:1px solid var(--line);height:11mm
@@ -134,6 +138,14 @@
   .bill-table td{height:55mm;padding:2mm;font-size:11px}
   .particulars{font-weight:900;color:#a12238;font-size:12px}
   .particulars-detail{margin-top:6mm;font-size:10px;line-height:1.6;color:var(--ink)}
+  .marka-wrap{margin-top:4mm;display:flex;justify-content:center}
+  .ntc-marka{
+    width:24mm;height:13mm;border-radius:999px;background:#d9314f;color:#ffe45d;
+    border:2px solid #d2a019;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-weight:900;line-height:1;font-size:6.3mm;box-shadow:inset 0 0 0 1px #ffffff33
+  }
+  .ntc-marka span{display:block;font-size:3.1mm;color:#ffe45d;letter-spacing:.3px}
+
   .particulars-detail .entry{display:grid;grid-template-columns:17mm 1fr 8mm;align-items:center;margin:2mm 0}
   .particulars-detail .valuebox{border:1px solid var(--line);min-height:7mm;padding:1.2mm 2mm;font-size:12px;font-weight:700;background:#fff}
   .bill-table thead .group-head{height:7mm;padding:.8mm 1mm}
@@ -164,10 +176,11 @@
   .summary table td:last-child{text-align:right;font-weight:800}
   .grand{font-size:14px!important;font-weight:900!important}
   .bank-sign{
-    display:grid;grid-template-columns:1.7fr 1fr;min-height:31mm
+    display:grid;grid-template-columns:1fr 1.35fr 1fr;min-height:31mm
   }
-  .bank{padding:4mm}
-  .bankbox{border:1px solid var(--line);border-radius:8px;padding:2mm 3mm;display:inline-block;font-size:9px}
+  .bank{padding:4mm;display:flex;align-items:flex-end}
+  .bank.center-bank{justify-content:center;align-items:center}
+  .bankbox{border:1px solid var(--line);border-radius:8px;padding:2mm 3mm;display:inline-block;font-size:9px;background:#fff5df}
   .sign{padding:4mm;text-align:center;font-weight:700;display:flex;flex-direction:column;justify-content:space-between}
   .footer-note{text-align:center;font-size:8px;color:#777;padding:1.5mm}
   .money{text-align:right;white-space:nowrap}
@@ -311,7 +324,7 @@
 </div>
 
 <div class="topbar">
-  <h1>Nishi Trading Company — Bill Generator v8 Original Header</h1>
+  <h1>Nishi Trading Company — Bill Generator v10 Original Billbook Layouted</h1>
   <div class="actions">
     <span class="cloud-badge local" id="cloudBadge"><span class="cloud-dot"></span><span id="cloudStatus">Local mode</span></span>
     <span class="user-chip" id="userChip"></span>
@@ -371,7 +384,7 @@
       <div><label>Bank / Branch</label><input id="bankName" value="HDFC BANK CHANDWAD BR."></div>
       <div><label>Bank A/c No.</label><input id="accountNo" value="50200056392670"></div>
       <div><label>IFSC</label><input id="ifsc" value="HDFC0004127"></div>
-      <div><label>Ganesh Idol / Deity Image</label><input id="logoInput" type="file" accept="image/*"></div>
+      <div><label>Ganesh Idol / Deity Image</label><input id="logoInput" type="file" accept="image/*"><div class="small">If no custom image is uploaded, the default Ganesh image will be shown automatically.</div></div>
     </div>
 
     <h2>Terms & Conditions</h2>
@@ -389,19 +402,20 @@ D) Payment Condition 7 Days when over then 2% p.a. Extra From Billing Date.</tex
     <div class="preview-wrap">
       <section class="bill-page" id="billPage">
         <div class="jurisdiction">
-          <div id="pvContactLeft">Subject to Chandwad Jurisdiction | Email: shamaher45@gmail.com</div>
-          <div style="text-align:right">
-          <div style="font-weight:900;color:#8d1233" id="pvProprietorTop">Pro. Sham Bhausaheb Aher</div>
-          <div>☎ <span id="pvPhone">9158298024, 8329667565</span></div>
-        </div>
+          <div class="left-top" id="pvContactLeft">Subject to Chandwad Jurisdiction | Email: shamaher45@gmail.com</div>
+          <div class="center-top">|| श्री गणेशाय नमः ||</div>
+          <div class="right-top">
+            <div style="font-weight:900;color:#8d1233" id="pvProprietorTop">Pro. Sham Bhausaheb Aher</div>
+            <div>☎ <span id="pvPhone">9158298024, 8329667565</span></div>
+          </div>
         </div>
 
         <div class="head">
           <div class="logo-box" id="pvLogoBox"><span>LOGO /<br>DEITY</span></div>
           <div class="company">
             <div class="en" id="pvCompanyEn">NISHI TRADING COMPANY</div>
-            <div class="mr" id="pvCompanyMr">निशी ट्रेडिंग कंपनी</div>
-            <div class="tag" id="pvTagline">EXPORT ONIONS ORDER SUPPLIERS</div>
+            <div class="mr" id="pvCompanyMr">☩ निशी ट्रेडिंग कंपनी ☩</div>
+            <div class="tag" id="pvTagline">* EXPORT ONIONS ORDER SUPPLIERS *</div>
           </div>
           <div></div>
         </div>
@@ -502,7 +516,11 @@ D) Payment Condition 7 Days when over then 2% p.a. Extra From Billing Date.</tex
         </div>
 
         <div class="bank-sign">
-          <div class="bank">
+          <div class="sign">
+            <div style="height:14mm"></div>
+            <div>Purchaser's Signature or<br>Representative's Signature</div>
+          </div>
+          <div class="bank center-bank">
             <div class="bankbox">
               <b>OUR BANKERS :</b>
               &nbsp; Pan Card No. ➜ <b id="pvPan">CYQPA8903C</b><br>
@@ -510,7 +528,6 @@ D) Payment Condition 7 Days when over then 2% p.a. Extra From Billing Date.</tex
               &nbsp; A/c.No. <b id="pvAccount">50200056392670</b><br>
               IFSC CODE : <b id="pvIFSC">HDFC0004127</b>
             </div>
-            <div style="margin-top:5mm">Purchaser's Signature or<br>Representative's Signature</div>
           </div>
           <div class="sign">
             <div>FOR <span id="pvCompanyEn2">NISHI TRADING COMPANY</span></div>
@@ -534,7 +551,7 @@ const splitMoney = n => {
   return {rs: rupees.toLocaleString('en-IN'), ps: String(paise).padStart(2,'0')};
 };
 const esc = s => String(s ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-var DEFAULT_GANESH_ICON = 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 240 240\'>  <rect width=\'240\' height=\'240\' rx=\'16\' fill=\'#fffaf3\'/>  <circle cx=\'120\' cy=\'52\' r=\'16\' fill=\'#d8a12d\'/>  <path d=\'M75 98c0-24 20-44 45-44s45 20 45 44c0 17-8 32-21 40 10 8 16 19 16 32 0 25-18 46-40 46s-40-21-40-46c0-13 6-24 16-32-13-8-21-23-21-40z\' fill=\'none\' stroke=\'#a82645\' stroke-width=\'10\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/>  <path d=\'M120 99c18 0 33 16 33 35 0 18-13 29-25 37-12 8-16 18-16 29\' fill=\'none\' stroke=\'#a82645\' stroke-width=\'10\' stroke-linecap=\'round\'/>  <path d=\'M120 98c-18 0-33 16-33 35 0 10 4 18 10 25\' fill=\'none\' stroke=\'#a82645\' stroke-width=\'10\' stroke-linecap=\'round\'/>  <path d=\'M146 103c6-6 16-7 22-2 7 5 8 15 3 22\' fill=\'none\' stroke=\'#a82645\' stroke-width=\'8\' stroke-linecap=\'round\'/>  <path d=\'M94 102c-6-7-16-8-23-4-7 5-9 15-5 23\' fill=\'none\' stroke=\'#a82645\' stroke-width=\'8\' stroke-linecap=\'round\'/>  <circle cx=\'102\' cy=\'112\' r=\'4\' fill=\'#a82645\'/>  <circle cx=\'138\' cy=\'112\' r=\'4\' fill=\'#a82645\'/>  <path d=\'M97 154c9 7 20 10 30 10 12 0 24-3 34-10\' fill=\'none\' stroke=\'#d8a12d\' stroke-width=\'8\' stroke-linecap=\'round\'/>  <path d=\'M114 52l6-18 6 18\' fill=\'none\' stroke=\'#d8a12d\' stroke-width=\'6\' stroke-linecap=\'round\'/>  <text x=\'120\' y=\'225\' text-anchor=\'middle\' font-family=\'Arial,Helvetica,sans-serif\' font-size=\'18\' font-weight=\'700\' fill=\'#a82645\'>श्री गणेशाय नमः</text></svg>';
+var DEFAULT_GANESH_ICON = 'ganesh_default.jpg';
 var logoData = localStorage.getItem('nishiLogo') || '';
 window.setBillLogoData = function(data){ logoData=data||''; if(logoData)localStorage.setItem('nishiLogo',logoData); else localStorage.removeItem('nishiLogo'); updatePreview(); };
 
@@ -719,7 +736,7 @@ function updatePreview(){
   $('pvRemarks').textContent=$('remarks').value;
 
   const displayLogo = logoData || DEFAULT_GANESH_ICON;
-  $('pvLogoBox').innerHTML=`<img src="${displayLogo}" alt="Ganesh Idol">`;
+  $('pvLogoBox').innerHTML=`<img src="${displayLogo}" alt="Ganesh Idol" onerror="if(this.dataset.fallback!=='1'){this.dataset.fallback='1';this.src='ganesh_default.jpg';}">`;
 
   $('pvParticulars').innerHTML=items.map(it=>`
     <div style="margin-bottom:5mm">
@@ -728,6 +745,9 @@ function updatePreview(){
         <div class="entry"><span>PACKET</span><span class="valuebox">${esc(it.bags ?? '')}</span><span></span></div>
         <div class="entry"><span>Each of</span><span class="valuebox">${esc(it.eachOf ?? '')}</span><span>kg.</span></div>
         <div style="margin-top:3mm">Packing</div>
+        <div class="marka-wrap">
+          <div class="ntc-marka">NTC<span>MARKA</span></div>
+        </div>
       </div>
     </div>`).join('');
 

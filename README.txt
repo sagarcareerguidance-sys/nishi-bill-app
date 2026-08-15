@@ -1,14 +1,16 @@
-NISHI TRADING COMPANY BILL GENERATOR v8 ORIGINAL HEADER
+NISHI TRADING COMPANY BILL GENERATOR v10 ORIGINAL BILLBOOK LAYOUT
 
-Changes in v8:
-- Header behind "NISHI TRADING COMPANY" redesigned to match the original printed bill style more closely.
-- Added pink/magenta gradient background behind the company name.
-- Marathi company name now appears in bright yellow like the bill book.
-- Export tagline now sits inside a blue ribbon-style box.
-- Office address line changed to a yellow band similar to the original bill.
-- Added editable top-right proprietor text field:
-  "Pro. Sham Bhausaheb Aher"
-- Existing cloud login, all-bills history, and printing features remain intact.
+Changes in v10:
+- Header redesigned closer to the original printed bill book
+- Top strip now includes centered '|| श्री गणेशाय नमः ||'
+- Company header uses a stronger pink/magenta original-style band
+- Marathi company name and export ribbon updated closer to original look
+- NTC MARKA badge added in the Packing area where it appears in the original bill
+- Bank details box moved to the center bottom
+- Signature areas now appear on left and right of the centered bank details box
 
 Deployment:
-Replace the existing repository files with this version and commit changes.
+1. Replace the existing repository files with this version
+2. Commit changes
+3. Vercel will auto-redeploy
+4. Do a hard refresh (Ctrl+F5)
