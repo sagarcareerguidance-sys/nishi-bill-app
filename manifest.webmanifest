@@ -1,0 +1,9 @@
+{
+  "name": "Nishi Trading Company Bill Generator",
+  "short_name": "Nishi Bills",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f3f4f7",
+  "theme_color": "#8d1233",
+  "description": "Secure cloud bill generator for Nishi Trading Company"
+}

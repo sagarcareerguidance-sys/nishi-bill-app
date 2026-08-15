@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nishi Trading Company - Bill Generator</title>
+<meta name="theme-color" content="#8d1233">
+<link rel="manifest" href="manifest.webmanifest">
+<script src="config.js"></script>
+
+<style>
+  :root{
+    --brand:#8d1233;
+    --brand2:#c21848;
+    --gold:#f3c443;
+    --ink:#3b2b2b;
+    --line:#ba526a;
+    --paper:#fffdf8;
+    --ui:#f3f4f7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--ui);color:#222}
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    display:flex;gap:10px;align-items:center;justify-content:space-between;
+    padding:10px 14px;background:#1f2430;color:#fff;box-shadow:0 2px 10px #0002
+  }
+  .topbar h1{font-size:16px;margin:0;font-weight:700}
+  .actions{display:flex;gap:8px;flex-wrap:wrap}
+  button,.file-label{
+    border:0;border-radius:7px;padding:9px 12px;font-weight:700;cursor:pointer;
+    background:#fff;color:#222;font-size:13px
+  }
+  button.primary{background:#26a65b;color:#fff}
+  button.danger{background:#c0392b;color:#fff}
+  button.brand{background:var(--brand2);color:#fff}
+  .file-label input{display:none}
+  .app{display:grid;grid-template-columns:minmax(360px,460px) 1fr;gap:14px;padding:14px}
+  .panel{background:#fff;border-radius:10px;padding:14px;box-shadow:0 2px 10px #0001;height:calc(100vh - 76px);overflow:auto}
+  .panel h2{font-size:15px;margin:14px 0 8px;color:var(--brand)}
+  .panel h2:first-child{margin-top:0}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .grid.one{grid-template-columns:1fr}
+  label{font-size:11px;font-weight:700;color:#555;display:block;margin-bottom:4px}
+  input,textarea,select{
+    width:100%;padding:8px;border:1px solid #ccd0d8;border-radius:6px;font-size:13px;background:#fff
+  }
+  textarea{min-height:58px;resize:vertical}
+  .small{font-size:11px;color:#666}
+  .item-card,.expense-card{
+    border:1px solid #e5e7eb;border-radius:8px;padding:9px;margin-bottom:8px;background:#fafafa
+  }
+  .calc-note{font-size:10px;color:#666;margin-top:5px;line-height:1.35}
+  .calc-result{font-size:12px;font-weight:800;color:var(--brand);margin-top:5px}
+  .row-actions{display:flex;justify-content:flex-end;margin-top:6px}
+  .row-actions button{padding:5px 8px;background:#e9ecf2}
+  .history-list{max-height:220px;overflow:auto;border:1px solid #eee;border-radius:7px}
+  .history-item{padding:8px 9px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;gap:8px;align-items:center}
+  .history-item:last-child{border-bottom:0}
+  .history-item button{padding:5px 8px;background:#eceff4}
+  .preview-wrap{overflow:auto;padding:6px}
+  .bill-page{
+    width:210mm; min-height:297mm; margin:0 auto; background:var(--paper);
+    color:var(--ink); border:1.2px solid var(--line); position:relative;
+    font-family:Arial,Helvetica,sans-serif; font-size:11px;
+    box-shadow:0 3px 18px #0002;
+  }
+  .jurisdiction{
+    height:10mm;display:flex;justify-content:space-between;align-items:center;
+    padding:1.8mm 4mm;border-bottom:1px solid var(--line);font-size:9px
+  }
+  .head{
+    display:grid;grid-template-columns:27mm 1fr 27mm;align-items:center;
+    padding:2mm 4mm 1.7mm;background:linear-gradient(#9a2440,#b62e4f);color:#fff;border-bottom:1px solid var(--line)
+  }
+  .logo-box{
+    height:24mm;border:1px solid #ffffff99;border-radius:4px;display:flex;align-items:center;justify-content:center;
+    overflow:hidden;background:#fff3;color:#fff;text-align:center;font-size:10px
+  }
+  .logo-box img{width:100%;height:100%;object-fit:contain;background:#fff}
+  .company{text-align:center}
+  .company .en{font-size:23px;font-weight:900;letter-spacing:.5px;text-shadow:0 1px 0 #0002}
+  .company .mr{font-size:18px;color:#ffcc33;font-weight:900;margin-top:1px}
+  .company .tag{display:inline-block;margin-top:3px;background:#f7f3e7;color:#2b406e;font-weight:900;padding:2px 10px;border-radius:10px;font-size:11px}
+  .address{font-size:8.5px;text-align:center;padding:1mm 3mm;border-bottom:1px solid var(--line);font-weight:700}
+  .invoice-band{
+    display:grid;grid-template-columns:1fr 1.2fr 1fr;align-items:center;border-bottom:1px solid var(--line);height:11mm
+  }
+  .invoice-band > div{padding:2mm 3mm}
+  .invoice-center{
+    text-align:center;background:linear-gradient(90deg,#dfb631,#f6df78,#dfb631);
+    clip-path:polygon(7% 0,93% 0,100% 50%,93% 100%,7% 100%,0 50%);
+    font-weight:900;font-size:14px;color:#6b5520
+  }
+  .info{
+    display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line)
+  }
+  .info > div{padding:3mm 4mm;min-height:28mm}
+  .info > div:first-child{border-right:1px solid var(--line)}
+  .line{margin:1.4mm 0;border-bottom:1px dotted #777;min-height:5mm}
+  .line .lbl{display:inline-block;min-width:34mm;font-weight:700}
+  .line .val{font-size:13px;font-weight:700}
+  table{border-collapse:collapse;width:100%}
+  .bill-table th,.bill-table td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);vertical-align:top}
+  .bill-table th:last-child,.bill-table td:last-child{border-right:0}
+  .bill-table th{
+    height:11mm;padding:1.3mm;text-align:center;font-size:9px;background:#f8efd4;font-weight:800
+  }
+  .bill-table td{height:55mm;padding:2mm;font-size:11px}
+  .particulars{font-weight:900;color:#a12238;font-size:12px}
+  .particulars-detail{margin-top:6mm;font-size:10px;line-height:1.6;color:var(--ink)}
+  .particulars-detail .entry{display:grid;grid-template-columns:17mm 1fr 8mm;align-items:center;margin:2mm 0}
+  .particulars-detail .valuebox{border:1px solid var(--line);min-height:7mm;padding:1.2mm 2mm;font-size:12px;font-weight:700;background:#fff}
+  .bill-table thead .group-head{height:7mm;padding:.8mm 1mm}
+  .bill-table thead .sub-head{height:6mm;padding:.5mm 1mm;font-size:8.5px}
+  .stack-line{min-height:7mm;margin-bottom:1.5mm}
+  .bill-table tfoot td{height:10mm;padding:2mm;border-right:1px solid var(--line);border-bottom:1px solid var(--line);font-weight:700}
+  .bill-table tfoot td:last-child{border-right:0}
+  .subbox{
+    margin-top:5mm;border:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;min-height:8mm
+  }
+  .subbox div{padding:2mm}
+  .subbox div:first-child{border-right:1px solid var(--line)}
+  .expense-lines{display:grid;grid-template-columns:1fr 1fr;gap:1mm 2mm;font-size:10.5px}
+  .expense-lines .amt{text-align:right;font-weight:700}
+  .totals-row{
+    display:grid;grid-template-columns:2.2fr 1.4fr 1.3fr 1fr 1.4fr;border-bottom:1px solid var(--line);min-height:10mm
+  }
+  .totals-row > div{border-right:1px solid var(--line);padding:2mm}
+  .totals-row > div:last-child{border-right:0}
+  .bottom{
+    display:grid;grid-template-columns:1.9fr 1fr;border-bottom:1px solid var(--line)
+  }
+  .terms{padding:3mm 4mm;min-height:51mm;border-right:1px solid var(--line);font-size:9px;line-height:1.35}
+  .terms h3{margin:0 0 1mm;font-size:10px}
+  .rupees{margin-top:4mm;font-size:10px;border-top:1px solid var(--line);padding-top:2mm}
+  .summary{min-height:51mm}
+  .summary table td{border-bottom:1px solid var(--line);padding:2mm;font-size:10px}
+  .summary table td:last-child{text-align:right;font-weight:800}
+  .grand{font-size:14px!important;font-weight:900!important}
+  .bank-sign{
+    display:grid;grid-template-columns:1.7fr 1fr;min-height:31mm
+  }
+  .bank{padding:4mm}
+  .bankbox{border:1px solid var(--line);border-radius:8px;padding:2mm 3mm;display:inline-block;font-size:9px}
+  .sign{padding:4mm;text-align:center;font-weight:700;display:flex;flex-direction:column;justify-content:space-between}
+  .footer-note{text-align:center;font-size:8px;color:#777;padding:1.5mm}
+  .money{text-align:right;white-space:nowrap}
+  .center{text-align:center}
+  .muted{color:#777}
+  .print-title{display:none}
+  @media(max-width:1100px){
+    .app{grid-template-columns:1fr}
+    .panel{height:auto;max-height:none}
+    .preview-wrap{overflow:auto}
+  }
+  @media print{
+    @page{size:A4 portrait;margin:0}
+    body{background:#fff}
+    .topbar,.editor-panel{display:none!important}
+    .app{display:block;padding:0}
+    .panel.preview-panel{box-shadow:none;padding:0;margin:0}
+    .preview-wrap{padding:0;overflow:visible}
+    .bill-page{box-shadow:none;border:1px solid var(--line);width:210mm;min-height:297mm;margin:0}
+  }
+
+  .cloud-badge{
+    display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;
+    background:#fff1;color:#fff;font-size:11px;font-weight:700;border:1px solid #ffffff33
+  }
+  .cloud-dot{width:8px;height:8px;border-radius:50%;background:#f1c40f}
+  .cloud-badge.online .cloud-dot{background:#2ecc71}
+  .cloud-badge.local .cloud-dot{background:#f39c12}
+  .user-chip{font-size:11px;color:#dfe6ee;max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .auth-overlay{
+    position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#4a0b1e,#9d2448);
+    display:flex;align-items:center;justify-content:center;padding:20px
+  }
+  .auth-card{
+    width:min(430px,100%);background:#fff;border-radius:16px;padding:24px;
+    box-shadow:0 24px 80px #0005
+  }
+  .auth-card h2{margin:0 0 6px;color:var(--brand);font-size:22px}
+  .auth-card p{font-size:12px;color:#666;line-height:1.5}
+  .auth-card input{margin-bottom:10px;padding:11px}
+  .auth-card button{width:100%;padding:12px;margin-top:4px;background:var(--brand2);color:#fff}
+  .auth-error{min-height:18px;color:#b00020;font-size:11px;margin-top:8px}
+  .setup-banner{
+    display:none;background:#fff3cd;border:1px solid #ffe69c;color:#664d03;
+    padding:9px 12px;font-size:12px
+  }
+  .setup-banner strong{color:#4b3800}
+
+</style>
+</head>
+<body>
+
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-card">
+    <h2>Nishi Trading Company</h2>
+    <p>Secure Bill Login</p>
+    <label>Email</label>
+    <input id="loginEmail" type="email" autocomplete="username" placeholder="client@example.com">
+    <label>Password</label>
+    <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Password">
+    <button id="loginBtn" type="button">Login</button>
+    <div class="auth-error" id="authError"></div>
+    <p class="small">The account is created by the app owner. Public self-registration is not shown in this client app.</p>
+  </div>
+</div>
+<div class="setup-banner" id="setupBanner">
+  <strong>Setup mode:</strong> Cloud login/database are not configured yet. The bill generator is running in local-browser mode.
+</div>
+
+<div class="topbar">
+  <h1>Nishi Trading Company — Bill Generator v5 Cloud</h1>
+  <div class="actions">
+    <span class="cloud-badge local" id="cloudBadge"><span class="cloud-dot"></span><span id="cloudStatus">Local mode</span></span>
+    <span class="user-chip" id="userChip"></span>
+    <button id="signOutBtn" style="display:none" onclick="cloudSignOut()">Sign out</button>
+    <button class="brand" onclick="newBill()">New Bill</button>
+    <button onclick="saveBill()">Save Bill</button>
+    <button class="primary" onclick="printBill()">PDF / Print</button>
+    <button onclick="exportData()">Backup</button>
+    <label class="file-label">Restore<input type="file" accept=".json" onchange="importData(event)"></label>
+  </div>
+</div>
+
+<div class="app">
+  <div class="panel editor-panel">
+    <h2>Bill Details</h2>
+    <div class="grid">
+      <div><label>Invoice No.</label><input id="invoiceNo" value="093"></div>
+      <div><label>Date</label><input id="billDate" type="date"></div>
+      <div><label>Customer / To</label><input id="customer" placeholder="Customer name"></div>
+      <div><label>Party / Contact Person</label><input id="contactPerson" placeholder="e.g. Amol Nikhil Avesh Sir"></div>
+      <div><label>Order Placed By</label><input id="orderedBy"></div>
+      <div><label>Delivery Challan No.</label><input id="challanNo"></div>
+      <div><label>From</label><input id="fromPlace"></div>
+      <div><label>To</label><input id="toPlace"></div>
+    </div>
+
+    <h2>Goods / Transport Rows</h2>
+    <div id="itemsEditor"></div>
+    <button onclick="addItem()">+ Add Row</button>
+
+    <h2>Expenses</h2>
+    <p class="small">For Market Fee, Commission, etc., choose <b>% of Main Bill Amount</b>. You can still use a fixed amount whenever required.</p>
+    <div id="expensesEditor"></div>
+    <button onclick="addExpense()">+ Add Expense</button>
+
+    <h2>Payment / Notes</h2>
+    <div class="grid one">
+      <div><label>Commission</label><input id="commission" type="number" step="0.01" value="0"></div>
+      <div><label>Truck Cash / Advance</label><input id="truckCash" type="number" step="0.01" value="0"></div>
+      <div><label>Other Adjustment</label><input id="otherAdjustment" type="number" step="0.01" value="0"></div>
+      <div><label>Amount in Words Override (optional)</label><input id="wordsOverride" placeholder="Leave blank for automatic"></div>
+      <div><label>Remarks</label><textarea id="remarks"></textarea></div>
+    </div>
+
+    <h2>Company Settings</h2>
+    <div class="grid one">
+      <div><label>English Company Name</label><input id="companyEn" value="NISHI TRADING COMPANY"></div>
+      <div><label>Marathi Company Name</label><input id="companyMr" value="निशी ट्रेडिंग कंपनी"></div>
+      <div><label>Business Tagline</label><input id="tagline" value="EXPORT ONIONS ORDER SUPPLIERS"></div>
+      <div><label>Office Address</label><input id="officeAddress" value='OFFICE: "ONION COMPLEX" APMC MARKET YARD, CHANDWAD - 423 101 DIST.: NASHIK (M.S.)'></div>
+      <div><label>Subject / Email Text</label><input id="contactLeft" value="Subject to Chandwad Jurisdiction | Email: shamaher45@gmail.com"></div>
+      <div><label>Phone</label><input id="phone" value="9158298024, 8329667565"></div>
+      <div><label>PAN</label><input id="pan" value="CYQPA8903C"></div>
+      <div><label>Bank / Branch</label><input id="bankName" value="HDFC BANK CHANDWAD BR."></div>
+      <div><label>Bank A/c No.</label><input id="accountNo" value="50200056392670"></div>
+      <div><label>IFSC</label><input id="ifsc" value="HDFC0004127"></div>
+      <div><label>Logo / Deity Image (optional)</label><input id="logoInput" type="file" accept="image/*"></div>
+    </div>
+
+    <h2>Terms & Conditions</h2>
+    <textarea id="terms">A) All dispute Subject to Chandwad Jurisdiction Only.
+B) Our responsibility ceases on delivery of goods at our Godown and Goods are Sold at Spot delivery.
+C) We are not responsible for any damage and Loss of weight in transit.
+D) Payment Condition 7 Days when over then 2% p.a. Extra From Billing Date.</textarea>
+
+    <h2>Saved Bills</h2>
+    <div class="history-list" id="history"></div>
+    <p class="small" id="storageNote">Bills are stored only in this browser/device. Use “Backup” regularly.</p>
+  </div>
+
+  <div class="panel preview-panel">
+    <div class="preview-wrap">
+      <section class="bill-page" id="billPage">
+        <div class="jurisdiction">
+          <div id="pvContactLeft">Subject to Chandwad Jurisdiction | Email: shamaher45@gmail.com</div>
+          <div>☎ <span id="pvPhone">9158298024, 8329667565</span></div>
+        </div>
+
+        <div class="head">
+          <div class="logo-box" id="pvLogoBox"><span>LOGO /<br>DEITY</span></div>
+          <div class="company">
+            <div class="en" id="pvCompanyEn">NISHI TRADING COMPANY</div>
+            <div class="mr" id="pvCompanyMr">निशी ट्रेडिंग कंपनी</div>
+            <div class="tag" id="pvTagline">EXPORT ONIONS ORDER SUPPLIERS</div>
+          </div>
+          <div></div>
+        </div>
+        <div class="address" id="pvAddress">OFFICE: "ONION COMPLEX" APMC MARKET YARD, CHANDWAD - 423 101 DIST.: NASHIK (M.S.)</div>
+
+        <div class="invoice-band">
+          <div><b>Bill Invoice No.</b> &nbsp; <span id="pvInvoiceNo" style="font-size:15px;font-weight:900;color:#8d1233">093</span></div>
+          <div class="invoice-center">BILL INVOICE</div>
+          <div style="text-align:right"><b>Date:</b> <span id="pvDate"></span></div>
+        </div>
+
+        <div class="info">
+          <div>
+            <div>To,</div>
+            <div class="line"><span class="val" id="pvCustomer"></span></div>
+            <div class="line"><span class="val" id="pvContactPerson"></span></div>
+          </div>
+          <div>
+            <div class="line"><span class="lbl">As per Your order Placed by</span><span class="val" id="pvOrderedBy"></span></div>
+            <div class="line"><span class="lbl">From</span><span class="val" id="pvFrom"></span> &nbsp; <span class="lbl" style="min-width:10mm">To</span><span class="val" id="pvTo"></span></div>
+            <div class="line"><span class="lbl">Delivery Challan No.</span><span class="val" id="pvChallan"></span></div>
+          </div>
+        </div>
+
+        <table class="bill-table">
+          <colgroup>
+            <col style="width:23%">
+            <col style="width:15%">
+            <col style="width:10%">
+            <col style="width:7%">
+            <col style="width:6%">
+            <col style="width:10%">
+            <col style="width:14%">
+            <col style="width:10%">
+            <col style="width:5%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th rowspan="2">Particulars</th>
+              <th rowspan="2">Truck /<br>Wagon Number</th>
+              <th rowspan="2">Bags /<br>Packet</th>
+              <th colspan="2" class="group-head">Weight</th>
+              <th rowspan="2">Rate</th>
+              <th colspan="3" class="group-head">BILL Amount</th>
+            </tr>
+            <tr>
+              <th class="sub-head">Qtl.</th>
+              <th class="sub-head">Kg</th>
+              <th class="sub-head"></th>
+              <th class="sub-head">Rs.</th>
+              <th class="sub-head">Ps.</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td id="pvParticulars"></td>
+              <td id="pvTrucks"></td>
+              <td id="pvBags" class="center"></td>
+              <td id="pvQtl" class="center"></td>
+              <td id="pvKg" class="center"></td>
+              <td id="pvRate" class="money"></td>
+              <td id="pvBillLabels"></td>
+              <td id="pvBillRs" class="money"></td>
+              <td id="pvBillPs" class="money"></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td><b>Total :-</b></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td style="text-align:right"><b>Total :-</b></td>
+              <td class="money"><b id="pvTotalRs">0</b></td>
+              <td class="money"><b id="pvTotalPs">00</b></td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div class="bottom">
+          <div class="terms">
+            <h3>Terms & Condition</h3>
+            <div id="pvTerms"></div>
+            <div class="rupees"><b>Rs. in words :</b> <span id="pvWords"></span></div>
+            <div style="margin-top:4mm"><b>Remarks:</b> <span id="pvRemarks"></span></div>
+          </div>
+          <div class="summary">
+            <table>
+              <tr><td>EXPENCES</td><td></td></tr>
+              <tr><td>Commission</td><td id="pvCommission">0.00</td></tr>
+              <tr><td>Truck Cash Adj.</td><td id="pvTruckCash">0.00</td></tr>
+              <tr><td>Others</td><td id="pvOtherAdj">0.00</td></tr>
+              <tr><td><b>Total BILL Amount</b></td><td class="grand" id="pvGrandTotal">0.00</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="bank-sign">
+          <div class="bank">
+            <div class="bankbox">
+              <b>OUR BANKERS :</b>
+              &nbsp; Pan Card No. ➜ <b id="pvPan">CYQPA8903C</b><br>
+              <span id="pvBank">HDFC BANK CHANDWAD BR.</span>
+              &nbsp; A/c.No. <b id="pvAccount">50200056392670</b><br>
+              IFSC CODE : <b id="pvIFSC">HDFC0004127</b>
+            </div>
+            <div style="margin-top:5mm">Purchaser's Signature or<br>Representative's Signature</div>
+          </div>
+          <div class="sign">
+            <div>FOR <span id="pvCompanyEn2">NISHI TRADING COMPANY</span></div>
+            <div style="height:14mm"></div>
+            <div>Proprietor / Manager</div>
+          </div>
+        </div>
+        <div class="footer-note">Computer-generated bill • Printed from Nishi Trading Company Bill Generator</div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const money = n => (Number(n)||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const splitMoney = n => {
+  const value = Math.round((Number(n)||0) * 100);
+  const rupees = Math.trunc(value / 100);
+  const paise = Math.abs(value % 100);
+  return {rs: rupees.toLocaleString('en-IN'), ps: String(paise).padStart(2,'0')};
+};
+const esc = s => String(s ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+var logoData = localStorage.getItem('nishiLogo') || '';
+window.setBillLogoData = function(data){ logoData=data||''; if(logoData)localStorage.setItem('nishiLogo',logoData); else localStorage.removeItem('nishiLogo'); updatePreview(); };
+
+function todayISO(){
+  const d=new Date(); const off=d.getTimezoneOffset(); const local=new Date(d.getTime()-off*60000);
+  return local.toISOString().slice(0,10);
+}
+function prettyDate(v){
+  if(!v) return '';
+  const [y,m,d]=v.split('-'); return `${d}/${m}/${y}`;
+}
+function defaultItems(){
+  return [{particulars:'ONIONS BEST EXPORTS',truck:'',bags:'',eachOf:'',qtl:'',kg:'',amountMethod:'direct',rateBasis:'qtl',rate:'',amount:''}];
+}
+function defaultExpenses(){
+  return [
+    {name:'M. Fee',method:'percent',percent:'',amount:''},
+    {name:'Comm.',method:'percent',percent:'',amount:''},
+    {name:'Labour',method:'fixed',percent:'',amount:''},
+    {name:'M.T. Bags',method:'fixed',percent:'',amount:''},
+    {name:'Hamali',method:'fixed',percent:'',amount:''},
+    {name:'Sutli',method:'fixed',percent:'',amount:''},
+  ];
+}
+let items = defaultItems();
+let expenses = defaultExpenses();
+
+function addItem(data={particulars:'',truck:'',bags:'',eachOf:'',qtl:'',kg:'',amountMethod:'direct',rateBasis:'qtl',rate:'',amount:''}){
+  items.push(data); renderEditors(); updatePreview();
+}
+function removeItem(i){ if(items.length>1){items.splice(i,1);renderEditors();updatePreview();} }
+function addExpense(data={name:'',method:'fixed',percent:'',amount:''}){expenses.push(data);renderEditors();updatePreview();}
+function removeExpense(i){expenses.splice(i,1);renderEditors();updatePreview();}
+
+function renderEditors(){
+  $('itemsEditor').innerHTML = items.map((it,i)=>`
+    <div class="item-card">
+      <div class="grid">
+        <div><label>Particulars</label><input value="${esc(it.particulars)}" oninput="items[${i}].particulars=this.value;updatePreview()"></div>
+        <div><label>Truck / Wagon No.</label><input value="${esc(it.truck)}" oninput="items[${i}].truck=this.value;updatePreview()"></div>
+        <div><label>Packets / Bags</label><input value="${esc(it.bags ?? '')}" oninput="items[${i}].bags=this.value;updatePreview()"></div>
+        <div><label>Each of (kg)</label><input type="number" step="0.01" value="${esc(it.eachOf ?? '')}" oninput="items[${i}].eachOf=this.value;updatePreview()"></div>
+        <div><label>Weight Qtl.</label><input type="number" step="0.01" value="${esc(it.qtl ?? '')}" oninput="items[${i}].qtl=this.value;updatePreview()"></div>
+        <div><label>Weight Kg</label><input type="number" step="0.01" value="${esc(it.kg ?? '')}" oninput="items[${i}].kg=this.value;updatePreview()"></div>
+        <div>
+          <label>Main Amount Method</label>
+          <select onchange="items[${i}].amountMethod=this.value;renderEditors();updatePreview()">
+            <option value="direct" ${((it.amountMethod||'direct')==='direct')?'selected':''}>Direct Amount</option>
+            <option value="rate" ${((it.amountMethod||'direct')==='rate')?'selected':''}>Rate × Weight</option>
+          </select>
+        </div>
+        ${((it.amountMethod||'direct')==='rate') ? `
+          <div>
+            <label>Rate Basis</label>
+            <select onchange="items[${i}].rateBasis=this.value;updatePreview()">
+              <option value="qtl" ${((it.rateBasis||'qtl')==='qtl')?'selected':''}>Rate per Quintal</option>
+              <option value="kg" ${((it.rateBasis||'qtl')==='kg')?'selected':''}>Rate per Kg</option>
+            </select>
+          </div>
+          <div><label>Rate</label><input type="number" step="0.01" value="${esc(it.rate ?? '')}" oninput="items[${i}].rate=this.value;updatePreview()"></div>
+          <div>
+            <label>Calculated Main Amount</label>
+            <input value="${money(calcItemAmount(it))}" readonly>
+            <div class="calc-note">Weight is calculated as Qtl × 100 + Kg. If rate is per quintal, kilograms are converted to fractional quintals.</div>
+          </div>
+        ` : `
+          <div><label>Rate (optional)</label><input type="number" step="0.01" value="${esc(it.rate ?? '')}" oninput="items[${i}].rate=this.value;updatePreview()"></div>
+          <div><label>Main Bill Amount</label><input type="number" step="0.01" value="${esc(it.amount ?? '')}" oninput="items[${i}].amount=this.value;updatePreview()"></div>
+        `}
+      </div>
+      <div class="row-actions"><button onclick="removeItem(${i})">Remove row</button></div>
+    </div>`).join('');
+
+  $('expensesEditor').innerHTML = expenses.map((ex,i)=>`
+    <div class="expense-card">
+      <div class="grid">
+        <div><label>Expense Name</label><input value="${esc(ex.name)}" oninput="expenses[${i}].name=this.value;updatePreview()"></div>
+        <div>
+          <label>Calculation Method</label>
+          <select onchange="expenses[${i}].method=this.value;renderEditors();updatePreview()">
+            <option value="percent" ${((ex.method||'fixed')==='percent')?'selected':''}>% of Main Bill Amount</option>
+            <option value="fixed" ${((ex.method||'fixed')==='fixed')?'selected':''}>Fixed Amount</option>
+          </select>
+        </div>
+        ${((ex.method||'fixed')==='percent') ? `
+          <div><label>Percentage (%)</label><input type="number" step="0.0001" value="${esc(ex.percent ?? '')}" oninput="expenses[${i}].percent=this.value;updatePreview()"></div>
+          <div>
+            <label>Calculated Amount</label>
+            <input value="${money(calcExpenseAmount(ex))}" readonly>
+            <div class="calc-note">Calculated on total main bill amount only.</div>
+          </div>
+        ` : `
+          <div><label>Fixed Amount</label><input type="number" step="0.01" value="${esc(ex.amount ?? '')}" oninput="expenses[${i}].amount=this.value;updatePreview()"></div>
+        `}
+      </div>
+      <div class="row-actions"><button onclick="removeExpense(${i})">Remove</button></div>
+    </div>`).join('');
+}
+
+const bindIds = [
+  'invoiceNo','billDate','customer','contactPerson','orderedBy','challanNo','fromPlace','toPlace',
+  'commission','truckCash','otherAdjustment','wordsOverride','remarks',
+  'companyEn','companyMr','tagline','officeAddress','contactLeft','phone','pan','bankName','accountNo','ifsc','terms'
+];
+bindIds.forEach(id=>$(`${id}`).addEventListener('input',updatePreview));
+
+$('logoInput').addEventListener('change',e=>{
+  const f=e.target.files?.[0]; if(!f)return;
+  const r=new FileReader(); r.onload=()=>{window.setBillLogoData(r.result);}; r.readAsDataURL(f);
+});
+
+function toWordsIndian(num){
+  num = Math.floor(Number(num)||0);
+  if(num===0) return 'Zero';
+  const one=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  const ten=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  function two(n){ if(n<20)return one[n]; return ten[Math.floor(n/10)]+(n%10?' '+one[n%10]:''); }
+  function three(n){ return (n>=100?one[Math.floor(n/100)]+' Hundred'+(n%100?' ':''):'') + two(n%100); }
+  let out=[];
+  const crore=Math.floor(num/10000000); num%=10000000;
+  const lakh=Math.floor(num/100000); num%=100000;
+  const thousand=Math.floor(num/1000); num%=1000;
+  const hundred=num;
+  if(crore) out.push(three(crore)+' Crore');
+  if(lakh) out.push(two(lakh)+' Lakh');
+  if(thousand) out.push(two(thousand)+' Thousand');
+  if(hundred) out.push(three(hundred));
+  return out.join(' ').trim();
+}
+function calcItemAmount(it){
+  if((it.amountMethod||'direct')==='direct'){
+    return Number(it.amount)||0;
+  }
+  const qtl=Number(it.qtl)||0;
+  const kg=Number(it.kg)||0;
+  const rate=Number(it.rate)||0;
+  const totalKg=(qtl*100)+kg;
+  if((it.rateBasis||'qtl')==='kg') return totalKg*rate;
+  return (totalKg/100)*rate;
+}
+function getMainBillTotal(){
+  return items.reduce((sum,it)=>sum+calcItemAmount(it),0);
+}
+function calcExpenseAmount(ex){
+  if((ex.method||'fixed')==='percent'){
+    return getMainBillTotal() * (Number(ex.percent)||0) / 100;
+  }
+  return Number(ex.amount)||0;
+}
+
+function amountWords(v){
+  const n=Number(v)||0;
+  const rupees=Math.floor(n);
+  const paise=Math.round((n-rupees)*100);
+  let s=`Rupees ${toWordsIndian(rupees)}`;
+  if(paise) s += ` and ${toWordsIndian(paise)} Paise`;
+  return s+' Only';
+}
+
+function updatePreview(){
+  $('pvContactLeft').textContent=$('contactLeft').value;
+  $('pvPhone').textContent=$('phone').value;
+  $('pvCompanyEn').textContent=$('companyEn').value;
+  $('pvCompanyEn2').textContent=$('companyEn').value;
+  $('pvCompanyMr').textContent=$('companyMr').value;
+  $('pvTagline').textContent=$('tagline').value;
+  $('pvAddress').textContent=$('officeAddress').value;
+  $('pvInvoiceNo').textContent=$('invoiceNo').value;
+  $('pvDate').textContent=prettyDate($('billDate').value);
+  $('pvCustomer').textContent=$('customer').value;
+  $('pvContactPerson').textContent=$('contactPerson').value;
+  $('pvOrderedBy').textContent=$('orderedBy').value;
+  $('pvFrom').textContent=$('fromPlace').value;
+  $('pvTo').textContent=$('toPlace').value;
+  $('pvChallan').textContent=$('challanNo').value;
+  $('pvPan').textContent=$('pan').value;
+  $('pvBank').textContent=$('bankName').value;
+  $('pvAccount').textContent=$('accountNo').value;
+  $('pvIFSC').textContent=$('ifsc').value;
+  $('pvTerms').innerHTML=esc($('terms').value).replace(/\n/g,'<br>');
+  $('pvRemarks').textContent=$('remarks').value;
+
+  if(logoData) $('pvLogoBox').innerHTML=`<img src="${logoData}" alt="Logo">`;
+  else $('pvLogoBox').innerHTML='<span>LOGO /<br>DEITY</span>';
+
+  $('pvParticulars').innerHTML=items.map(it=>`
+    <div style="margin-bottom:5mm">
+      <div class="particulars">${esc(it.particulars||'')}</div>
+      <div class="particulars-detail">
+        <div class="entry"><span>PACKET</span><span class="valuebox">${esc(it.bags ?? '')}</span><span></span></div>
+        <div class="entry"><span>Each of</span><span class="valuebox">${esc(it.eachOf ?? '')}</span><span>kg.</span></div>
+        <div style="margin-top:3mm">Packing</div>
+      </div>
+    </div>`).join('');
+
+  $('pvTrucks').innerHTML=items.map(it=>`<div class="stack-line">${esc(it.truck||'')}</div>`).join('');
+  $('pvBags').innerHTML=items.map(it=>`<div class="stack-line">${esc(it.bags ?? '')}</div>`).join('');
+  $('pvQtl').innerHTML=items.map(it=>`<div class="stack-line">${esc(it.qtl ?? '')}</div>`).join('');
+  $('pvKg').innerHTML=items.map(it=>`<div class="stack-line">${esc(it.kg ?? '')}</div>`).join('');
+  $('pvRate').innerHTML=items.map(it=>`<div class="stack-line">${(it.rate ?? '')!=='' ? money(it.rate) : ''}</div>`).join('');
+
+  const billRows = [];
+  items.forEach(it=>{
+    const amt=calcItemAmount(it);
+    const p=splitMoney(amt);
+    const show=((it.amountMethod||'direct')==='rate')
+      ? ((it.rate!=='' && (it.qtl!=='' || it.kg!=='')) ? true : false)
+      : (it.amount!=='');
+    billRows.push({label:'', rs:show?p.rs:'', ps:show?p.ps:''});
+  });
+  expenses.forEach(ex=>{
+    const amt=calcExpenseAmount(ex);
+    const p=splitMoney(amt);
+    const show=((ex.method||'fixed')==='percent') ? (ex.percent!=='') : (ex.amount!=='');
+    billRows.push({label:ex.name||'', rs:show?p.rs:'', ps:show?p.ps:''});
+  });
+
+  $('pvBillLabels').innerHTML=billRows.map(r=>`<div class="stack-line">${esc(r.label)}</div>`).join('');
+  $('pvBillRs').innerHTML=billRows.map(r=>`<div class="stack-line">${r.rs}</div>`).join('');
+  $('pvBillPs').innerHTML=billRows.map(r=>`<div class="stack-line">${r.ps}</div>`).join('');
+
+  const itemTotal=getMainBillTotal();
+  const expensesTotal=expenses.reduce((s,ex)=>s+calcExpenseAmount(ex),0);
+  const commission=Number($('commission').value)||0;
+  const truckCash=Number($('truckCash').value)||0;
+  const other=Number($('otherAdjustment').value)||0;
+  const subTotal=itemTotal+expensesTotal;
+  const grand=subTotal+commission+truckCash+other;
+
+  const subParts=splitMoney(subTotal);
+  $('pvTotalRs').textContent=subParts.rs;
+  $('pvTotalPs').textContent=subParts.ps;
+  $('pvCommission').textContent=money(commission);
+  $('pvTruckCash').textContent=money(truckCash);
+  $('pvOtherAdj').textContent=money(other);
+  $('pvGrandTotal').textContent=money(grand);
+  $('pvWords').textContent=$('wordsOverride').value.trim() || amountWords(grand);
+
+  document.title=`Bill_${$('invoiceNo').value||'New'}_${$('customer').value||'Customer'}`;
+}
+function getData(){
+  const data={};
+  bindIds.forEach(id=>data[id]=$(id).value);
+  data.items=items;data.expenses=expenses;data.logoData=logoData;
+  return data;
+}
+function setData(data){
+  bindIds.forEach(id=>{if(data[id]!==undefined)$(id).value=data[id]});
+  items=Array.isArray(data.items)&&data.items.length?data.items:defaultItems();
+  items=items.map(it=>({
+    ...it,
+    eachOf: it.eachOf ?? '',
+    amountMethod: it.amountMethod ?? 'direct',
+    rateBasis: it.rateBasis ?? 'qtl'
+  }));
+  expenses=Array.isArray(data.expenses)?data.expenses:defaultExpenses();
+  expenses=expenses.map(ex=>({
+    ...ex,
+    method: ex.method ?? 'fixed',
+    percent: ex.percent ?? ''
+  }));
+  if(data.logoData){window.setBillLogoData(data.logoData);}
+  renderEditors();updatePreview();
+}
+function saveBill(){
+  const all=JSON.parse(localStorage.getItem('nishiBills')||'[]');
+  const data=getData();
+  const key=String(data.invoiceNo||Date.now());
+  const idx=all.findIndex(x=>String(x.invoiceNo)===key);
+  if(idx>=0) all[idx]=data; else all.unshift(data);
+  localStorage.setItem('nishiBills',JSON.stringify(all.slice(0,200)));
+  // save company settings separately
+  localStorage.setItem('nishiCompanySettings',JSON.stringify({
+    companyEn:data.companyEn,companyMr:data.companyMr,tagline:data.tagline,officeAddress:data.officeAddress,
+    contactLeft:data.contactLeft,phone:data.phone,pan:data.pan,bankName:data.bankName,accountNo:data.accountNo,
+    ifsc:data.ifsc,terms:data.terms
+  }));
+  renderHistory();
+  alert('Bill saved on this device.');
+}
+function renderHistory(){
+  const all=JSON.parse(localStorage.getItem('nishiBills')||'[]');
+  $('history').innerHTML=all.length?all.map((b,i)=>`
+    <div class="history-item">
+      <div><b>#${esc(b.invoiceNo)}</b> ${esc(b.customer||'')}<br><span class="small">${esc(prettyDate(b.billDate||''))}</span></div>
+      <div><button onclick="loadHistory(${i})">Open</button> <button onclick="deleteHistory(${i})">Delete</button></div>
+    </div>`).join(''):'<div class="history-item"><span class="small">No saved bills yet.</span></div>';
+}
+function loadHistory(i){
+  const all=JSON.parse(localStorage.getItem('nishiBills')||'[]'); if(all[i])setData(all[i]);
+}
+function deleteHistory(i){
+  if(!confirm('Delete this saved bill?'))return;
+  const all=JSON.parse(localStorage.getItem('nishiBills')||'[]'); all.splice(i,1);
+  localStorage.setItem('nishiBills',JSON.stringify(all));renderHistory();
+}
+function newBill(){
+  const current=Number($('invoiceNo').value);
+  const next=Number.isFinite(current)?String(current+1).padStart(3,'0'):'';
+  const company=JSON.parse(localStorage.getItem('nishiCompanySettings')||'{}');
+  const data={
+    invoiceNo:next,billDate:todayISO(),customer:'',contactPerson:'',orderedBy:'',challanNo:'',fromPlace:'',toPlace:'',
+    commission:'0',truckCash:'0',otherAdjustment:'0',wordsOverride:'',remarks:'',
+    companyEn:company.companyEn||$('companyEn').value,companyMr:company.companyMr||$('companyMr').value,
+    tagline:company.tagline||$('tagline').value,officeAddress:company.officeAddress||$('officeAddress').value,
+    contactLeft:company.contactLeft||$('contactLeft').value,phone:company.phone||$('phone').value,
+    pan:company.pan||$('pan').value,bankName:company.bankName||$('bankName').value,
+    accountNo:company.accountNo||$('accountNo').value,ifsc:company.ifsc||$('ifsc').value,
+    terms:company.terms||$('terms').value,items:defaultItems(),expenses:defaultExpenses()
+  };
+  setData(data);
+}
+function printBill(){ updatePreview(); window.print(); }
+function exportData(){
+  const payload={
+    exportedAt:new Date().toISOString(),
+    bills:JSON.parse(localStorage.getItem('nishiBills')||'[]'),
+    company:JSON.parse(localStorage.getItem('nishiCompanySettings')||'{}'),
+    logoData:logoData
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Nishi_Bill_Backup.json';a.click();
+  URL.revokeObjectURL(a.href);
+}
+function importData(event){
+  const file=event.target.files?.[0];if(!file)return;
+  const r=new FileReader();r.onload=()=>{
+    try{
+      const p=JSON.parse(r.result);
+      if(Array.isArray(p.bills))localStorage.setItem('nishiBills',JSON.stringify(p.bills));
+      if(p.company)localStorage.setItem('nishiCompanySettings',JSON.stringify(p.company));
+      if(p.logoData){window.setBillLogoData(p.logoData);}
+      renderHistory();alert('Backup restored.');
+    }catch(e){alert('Invalid backup file.');}
+  };r.readAsText(file);
+}
+
+(function init(){
+  $('billDate').value=todayISO();
+  // avoid creating two rows on first render
+  items = defaultItems();
+  expenses = defaultExpenses();
+  renderEditors();
+  const company=JSON.parse(localStorage.getItem('nishiCompanySettings')||'{}');
+  Object.entries(company).forEach(([k,v])=>{if($(k))$(k).value=v});
+  renderHistory();updatePreview();
+  
+})();
+</script>
+<script type="module" src="cloud.js"></script>
+</body>
+</html>
