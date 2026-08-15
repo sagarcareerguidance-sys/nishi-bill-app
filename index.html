@@ -6,6 +6,32 @@
 <title>Nishi Trading Company - Bill Generator</title>
 <meta name="theme-color" content="#8d1233">
 <link rel="manifest" href="manifest.webmanifest">
+
+<script>
+(function(){
+  const VERSION = "nishi-v14";
+  try{
+    if(localStorage.getItem("nishiAppVersion") !== VERSION){
+      localStorage.setItem("nishiAppVersion", VERSION);
+
+      // Remove all old service workers so old cached HTML/JS cannot keep taking over.
+      if("serviceWorker" in navigator){
+        navigator.serviceWorker.getRegistrations()
+          .then(regs => Promise.all(regs.map(r => r.unregister())))
+          .catch(()=>{});
+      }
+
+      // Clear Cache Storage created by previous versions.
+      if("caches" in window){
+        caches.keys()
+          .then(keys => Promise.all(keys.map(k => caches.delete(k))))
+          .catch(()=>{});
+      }
+    }
+  }catch(e){}
+})();
+</script>
+
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
@@ -386,7 +412,7 @@
 </div>
 
 <div class="topbar">
-  <h1>Nishi Trading Company — Bill Generator v13 PDF Download Onlyed</h1>
+  <h1>Nishi Trading Company — Bill Generator v14 Cache Refresh Fixed <span id="appVersionBadge" style="font-size:10px;font-weight:700;opacity:.8">v14</span></h1>
   <div class="actions">
     <span class="cloud-badge local" id="cloudBadge"><span class="cloud-dot"></span><span id="cloudStatus">Local mode</span></span>
     <span class="user-chip" id="userChip"></span>
@@ -398,7 +424,7 @@
     <button onclick="printBill()">Print</button>
       </div>
 </div>
-<div class="setup-banner" id="printBanner" style="display:block;background:#e8f4fd;border:1px solid #b6ddff;color:#12405d">Tip: Tap <b>Download Bill PDF</b>. The downloaded file will be a <b>.pdf</b> invoice, not a JSON backup file.</div>
+<div class="setup-banner" id="printBanner" style="display:block;background:#e8f4fd;border:1px solid #b6ddff;color:#12405d">Version <b>v14</b>: Tap <b>Download Bill PDF</b> for a clean one-page A4 PDF. If you do not see this text, your phone is still showing the old cached app.</div>
 
 <div class="app">
   <div class="panel editor-panel">
